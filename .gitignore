@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+#libraries
+assimp-5.0.1
+glm

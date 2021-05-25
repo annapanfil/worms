@@ -7,7 +7,7 @@ private:
   float angle_y; //current rotation angle of the object, y axis
   //graficzna reprezentacja
   //ewent. dorzucić macierz M
-  void move(float x, float y, float z);
+  void move(float x, float y, float z);   //czy to jest potrzebne? mamay update
 
 public:
   glm::vec3 get_position();
@@ -48,6 +48,8 @@ private:
 public:
   Camera();
   void change_mode();
+  void update_pos(glm::vec3 _pos);      //żeby kamera poruszała się razem z robaczkiem lub zmieniła ustawienie po mode_change
+  bool get_mode();        //potrzebne żeby kamera poruszała się razem z robaczkiem
   float get_angle_x();
   float get_angle_y();
 };

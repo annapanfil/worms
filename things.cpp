@@ -31,8 +31,8 @@ Worm::update(float speed, float angle_speed, double _time){
   try{
     y = board->get_height(x,z);
     pos = glm::vec3(x, y, z);
-    camera.update_pos(glm::vec3(x+5, y+5, z+5););  //camera zainicjalizowana w mainie
-  }
+    camera.update_pos(glm::vec3(x+1, y+4, z-5));  //camera zainicjalizowana w mainie
+  }   
   catch(std::out_of_range){}        //nie wiemy czy nie potrzeba &zmiennej
 }
 
@@ -68,12 +68,22 @@ Bullet::check_collision(Board* _board, vector<Worm*> _worms){
 }
 
 Camera::Camera(glm::vec3 pos): Thing(0,0,pos){
-  walking_mode=true;
-
+  walking_mode = true;
 }
 
-Camera::change_mode(){
+Camera::change_mode(){    //trzeba dodać angles
   //switch to different mode
+  if(this->walking_mode == true){
+    //opcjonalnie zapisz poprzednie ustawienie kamery wzgl. worma |+deklaracja globalna pos_save/zwracanie
+    //pos_save = pos - active_worm.get_position();
+    this -> pos = active_worm.get_position();
+  }   //zmieniamy na strzelanie
+  else{
+    //wróć do poprzedniego ustawienia
+    //pos = active_worm.get_position() + pos_save;
+    this -> pos = active_worm.get_position() + glm::vec3(1, 4, -5);
+  }   //zmieniamy na chodzenie
+  walking_mode = -walking_mode; 
 }
 
 

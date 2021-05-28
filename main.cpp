@@ -1,24 +1,14 @@
 #define GLM_FORCE_RADIANS
 
-#include <ctime>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <stdlib.h>
-#include <stdio.h>
-// #include "constants.h"
-// #include "lodepng.h"
-#include "shaderprogram.h"
+#include "includes.hpp"
 
 float speed = 0;
 float angle_speed = 0;
 float camera_angle_speed_x = 0;
 float camera_angle_speed_y = 0;
 
-const float ANGLE_SPEED = PI/4
-const float SPEED = 1
+const float ANGLE_SPEED = PI/4;
+const float SPEED = 1;
 
 bool walking = true;
 
@@ -45,10 +35,10 @@ void keyCallback(GLFWwindow* window,int key,int scancode,int action,int mods) {
         if (key==GLFW_KEY_RIGHT) angle_speed = 0;
         if (key==GLFW_KEY_UP) speed = 0;
         if (key==GLFW_KEY_DOWN) speed = 0;
-	    
+
 	if (key==GLFW_KEY_SPACE) walking = !walking;
-    	if (key==GLFW_KEY_A) camera_angle_speed = 0;
-	if (key==GLFW_KEY_D) camera_angle_speed = 0;
+    	if (key==GLFW_KEY_A) camera_angle_speed_x = 0;
+	if (key==GLFW_KEY_D) camera_angle_speed_x = 0;
 	if (key==GLFW_KEY_W) camera_angle_speed_y = 0;
 	if (key==GLFW_KEY_S) camera_angle_speed_y = 0;
     }
@@ -76,13 +66,13 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 	return glm::vec3(dir);
 }  //podajemy kąty
 
-void drawSceneWalking(GLFWwindow* window, float angle_x, float angle_y, Camera* camera, Worm* active_worm) {
+void drawSceneWalking(GLFWwindow* window, Camera* camera, Worm* active_worm) {
 	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
 
 	//liczy macierz widoku uwzgędniając kąty									//active_worm
-	glm::mat4 V = glm::lookAt(camera.get_position()+calcDir(angle_x, angle_y), active_worm.get_position(), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
+	glm::mat4 V = glm::lookAt(camera.get_position()+calcDir(camera->get_angle_x(), camera->get_angle_y()), active_worm.get_position(), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
 	//							observer 							, center		 , noseVector (pionowo prostopadły do osi patrzenia)
   glm::mat4 P=glm::perspective(50.0f*PI/180.0f, 1.0f, 1.0f, 50.0f);
 
@@ -91,8 +81,8 @@ void drawSceneWalking(GLFWwindow* window, float angle_x, float angle_y, Camera* 
   glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
 
   glm::mat4 M=glm::mat4(1.0f);
-	M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f));
-	M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
+	// M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f));
+	// M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
   glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
 
 
@@ -115,13 +105,13 @@ void drawSceneWalking(GLFWwindow* window, float angle_x, float angle_y, Camera* 
   glfwSwapBuffers(window);*/
 }
 
-void drawSceneShooting(GLFWwindow* window,float angle_x,float angle_y, Camera* camera){
+void drawSceneShooting(GLFWwindow* window, Camera* camera){
 	/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
 
 	//liczy macierz widoku uwzgędniając kąty
-	glm::mat4 V = glm::lookAt(camera.get_position(), camera.get_position()+calcDir(angle_x, angle_y), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
+	glm::mat4 V = glm::lookAt(camera.get_position(), camera.get_position()+calcDir(camera->get_angle_x(), camera->get_angle_y()), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
 	//						  observer   , center							 	, noseVector (pionowo prostopadły do osi patrzenia)
   glm::mat4 P=glm::perspective(50.0f*PI/180.0f, 1.0f, 1.0f, 50.0f);
 
@@ -129,8 +119,10 @@ void drawSceneShooting(GLFWwindow* window,float angle_x,float angle_y, Camera* c
   glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
   glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
 */
+}
 
 
+void drawSceneExplosion(){
 }
 
 
@@ -173,43 +165,58 @@ int main(void)
 	srand(time(NULL));
   GLFWwindow* window = create_window();
 
-	Board* board;
-	vector<Worm*> worms = [Worm("Napoleon", board), Worm("Che Guevara", board)];
-	Camera* camera;
-	glm::vec3 wind = (std::rand(20)/10-10, std::rand(6)/10-3, std::rand(20)/10-10);
+	Board* board; //TODO: utworzyć planszę
+	Camera* camera; //TODO: utworzyć kamerę
+	Worm worm1 = Worm("Napoleon", board, camera);
+	Worm worm2 = Worm("Che Guevara", board, camera);
+	std::vector<Worm*> worms = {&worm1, &worm2};
+	glm::vec3 wind = glm::vec3((std::rand()%21)/10-10, (std::rand()%7)/10-3, (std::rand()%21)/10-10);
+	float angle_x, angle_y;
 
 	glfwSetTime(0); //Zero the timer
 	//Main application loop
 	while (!glfwWindowShouldClose(window))
 	{
 		for(int i=0; i<2; i++){
-			active_worm = worms[i];
+			Worm* active_worm = worms[i];
 			clock_t start = clock();
-			while((clock() - start/ (double) CLOCKS_PER_SEC <= 20) && walking = true){
-				//ruch gracza czas 20 sec
-				active_worm.update(speed, angle_speed, glfwGetTime());
+
+			//ruch gracza
+			while((clock() - start/ (double) CLOCKS_PER_SEC <= 20) && walking == true){
+				active_worm->update(speed, angle_speed, glfwGetTime());
 				glfwSetTime(0);
 
-				drawSceneWalking(window,angle_x,angle_y, camera, active_worm);
+				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+
+				drawSceneWalking(window, camera, active_worm);
 				glfwPollEvents();
 			}
 
+			//strzał
 			while(walking=false){
 				glfwSetTime(0);
 
-				drawSceneShooting(window, angle_x, angle_y, camera);
+				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+
+				drawSceneShooting(window, camera);
 				glfwPollEvents();
 			}
 
-			Bullet* bullet = Bullet(active_worm.get_position(), camera->get_angle_x(), camera->get_angle_y());
+			Bullet bullet = Bullet(active_worm->get_position(), camera->get_angle_x(), camera->get_angle_y());
+
 			camera->change_mode();
-			while(bullet.speed != glm::vec3(0,0,0)){
+			while(bullet.get_speed() != glm::vec3(0,0,0)){
 				bullet.apply_gravity_and_wind(wind, glfwGetTime());
 				bullet.check_collision(board, worms);
 
 				glfwSetTime(0);
 
-				drawSceneShooting(window, angle_x, angle_y, camera);
+				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+
+				drawSceneShooting(window, camera);
 				glfwPollEvents();
 			}
 

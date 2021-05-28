@@ -34,77 +34,87 @@ void Worm::update(float speed, float angle_speed, double _time){
   try{
     float y = board->get_height(x,z);
     pos = glm::vec3(x, y, z);
-    camera.update_pos(glm::vec3(x+1, y+4, z-5));  //camera zainicjalizowana w mainie
+    camera->update_pos(get_position());
   }
-  catch(std::out_of_range){}        //nie wiemy czy nie potrzeba &zmiennej
+  catch(std::out_of_range){}
 }
 
+
+void Worm::damage(int how_much){
+  life -= how_much;
+}
 
 Bullet::Bullet(glm::vec3 pos, float angle_x, float angle_y): Thing(angle_x, angle_y, pos){
   float speed_val = 10;
-  this -> speed = vec3(speed_val*cos(angle_x)*cos(angle_y), speed_val*sin(angle_y), speed_val*sin(angle_x)*cos(angle_y));
+  this -> speed = glm::vec3(speed_val*cos(angle_x)*cos(angle_y), speed_val*sin(angle_y), speed_val*sin(angle_x)*cos(angle_y));
 }
 
 
-Bullet::apply_gravity_and_wind(glm::vec3 _wind, float _time){
+void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float _time){
   glm::vec3 gravity = glm::vec3(0, -0.02, 0);
   this -> speed =  speed + gravity + _wind;
 }
 
-bool Bullet::check_collision(Board* _board, vector<Worm*> _worms){
+bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
   try{
     if(this->pos.y == _board -> get_height(this->pos.x, this->pos.z)){
-      this->speed=glm::vec(0,0,0);
+      this->speed=glm::vec3(0,0,0);
       //wyświetl eksplozję
     }
   }
   catch(std::out_of_range){
-    this->speed=speed*(-1);
+    this->speed=speed*(-1.0f);
   }
-  float r = 2
-  for(i=0, i<2, i++){
-    glm::vec3 dist = glm::distance(this->pos, _worm[i]->pos );
+  float r = 2;
+  for(int i=0; i<2; i++){
+    float dist = glm::distance(this->get_position(), _worms[i]->get_position());
     if(dist < r){
-      _worm[i]->damage(1/dist*15);
+      _worms[i]->damage(1/dist*15);
       //eksplozja
-      this->speed=glm::vec(0,0,0);
+      this->speed=glm::vec3(0,0,0);
     }
   }
 }
 
-Camera::Camera(glm::vec3 pos): Thing(0,0,pos){
+Camera::Camera(): Thing(0,0,glm::vec3(0,0,0)){
   walking_mode = true;
 }
 
-void Camera::change_mode(){    //trzeba dodać angles
+void Camera::change_mode(Worm* active_worm){    //trzeba dodać angles
   //switch to different mode
   if(this->walking_mode == true){
     //opcjonalnie zapisz poprzednie ustawienie kamery wzgl. worma |+deklaracja globalna pos_save/zwracanie
-    //pos_save = pos - active_worm.get_position();
-    this -> pos = active_worm.get_position();
+    //pos_save = pos - active_worm->get_position();
+    this -> pos = active_worm->get_position();
   }   //zmieniamy na strzelanie
   else{
     //wróć do poprzedniego ustawienia
-    //pos = active_worm.get_position() + pos_save;
-    this -> pos = active_worm.get_position() + glm::vec3(1, 4, -5);
+    //pos = active_worm->get_position() + pos_save;
+    this -> pos = active_worm->get_position() + glm::vec3(1, 4, -5);
   }   //zmieniamy na chodzenie
   walking_mode = -walking_mode;
 }
 
 
-void Camera::update_pos(_pos){
-    this -> pos = _pos;
+void Camera::update_pos(glm::vec3 _pos){
+    this->pos = glm::vec3(_pos.x+1, _pos.y+4, _pos.z-5);
 }
 
 
 Board::Board(){
+  //earth = Model3D();
 
+  //TODO
 }
+
 float Board::get_height(float x, float z){
-  //vec1
+  glm::vec3 v1 = glm::vec3(0,0,0);  //TODO: pobrać najbliższe 3
+  glm::vec3 v2 = glm::vec3(0,0,0);
+  glm::vec3 v3 = glm::vec3(0,0,0);
+
   if(x > this->x || z > this->z || x < 0 || z < 0){
-    throw std::out_of_range;
+    throw std::out_of_range("Outside of the board");
   }
-  float y = (-(x-vec1.x)*(vec2.y-vec1.y)*(vec3.z-vec1.z)-(vec2.x-vec1.x)*(vec3.y-vec1.y)*(z-vec1.z)+(z-vec1.z)*(vec2.y-vec1.y)*(vec3.x-vec1.x)+(vec2.z-vec1.z)*(vec3.y-vec1.y)*(x-vec1.x))/((vec2.z-vec1.z)*(vec3.x-vec1.x)-(vec3.z-vec1.z)*(vec2.x-vec1.x))+vec1.y;
+  float y = (-(x-v1.x)*(v2.y-v1.y)*(v3.z-v1.z)-(v2.x-v1.x)*(v3.y-v1.y)*(z-v1.z)+(z-v1.z)*(v2.y-v1.y)*(v3.x-v1.x)+(v2.z-v1.z)*(v3.y-v1.y)*(x-v1.x))/((v2.z-v1.z)*(v3.x-v1.x)-(v3.z-v1.z)*(v2.x-v1.x))+v1.y;
   return y;
 }

@@ -166,10 +166,14 @@ int main(void)
   GLFWwindow* window = create_window();
 
 	Board* board; //TODO: utworzyć planszę
-	Camera* camera; //TODO: utworzyć kamerę
-	Worm worm1 = Worm("Napoleon", board, camera);
-	Worm worm2 = Worm("Che Guevara", board, camera);
+	Camera camera;
+
+	Worm worm1 = Worm("Napoleon", board, &camera);
+	Worm worm2 = Worm("Che Guevara", board, &camera);
+
+	camera.update_pos(worm1.get_position());
 	std::vector<Worm*> worms = {&worm1, &worm2};
+
 	glm::vec3 wind = glm::vec3((std::rand()%21)/10-10, (std::rand()%7)/10-3, (std::rand()%21)/10-10);
 	float angle_x, angle_y;
 
@@ -186,10 +190,10 @@ int main(void)
 				active_worm->update(speed, angle_speed, glfwGetTime());
 				glfwSetTime(0);
 
-				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
-				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+				camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
 
-				drawSceneWalking(window, camera, active_worm);
+				drawSceneWalking(window, &camera, active_worm);
 				glfwPollEvents();
 			}
 
@@ -197,26 +201,26 @@ int main(void)
 			while(walking=false){
 				glfwSetTime(0);
 
-				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
-				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+				camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
 
-				drawSceneShooting(window, camera);
+				drawSceneShooting(window, &camera);
 				glfwPollEvents();
 			}
 
-			Bullet bullet = Bullet(active_worm->get_position(), camera->get_angle_x(), camera->get_angle_y());
+			Bullet bullet = Bullet(active_worm->get_position(), camera.get_angle_x(), camera.get_angle_y());
 
-			camera->change_mode();
+			camera.change_mode(active_worm);
 			while(bullet.get_speed() != glm::vec3(0,0,0)){
 				bullet.apply_gravity_and_wind(wind, glfwGetTime());
 				bullet.check_collision(board, worms);
 
 				glfwSetTime(0);
 
-				camera->set_angle_x(camera_angle_speed_x * glfwGetTime());
-				camera->set_angle_y(camera_angle_speed_y * glfwGetTime());
+				camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
+				camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
 
-				drawSceneShooting(window, camera);
+				drawSceneShooting(window, &camera);
 				glfwPollEvents();
 			}
 

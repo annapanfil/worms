@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+
+class Worm;
 //eksplozja
 
 class Board{
@@ -11,9 +13,10 @@ private:
   float x;
   float z;
   float Vertices[];
-  //grafika
+  //Model3D earth;
 
 public:
+  Board();
   float get_x(){return x;}
   float get_z(){return z;}
   float get_height(float x, float z); //jak poza planszą to coś tam
@@ -32,7 +35,7 @@ protected:
 public:
   Thing(float _angle_x, float angle_y, glm::vec3 pos);
   Thing(float _angle_x, Board* board);
-  glm::vec3 get_position();
+  glm::vec3 get_position() {return pos;}
   void rotate(float angle, float time);
   void turn_right(float angle);
   void move_forward(float amount);
@@ -49,8 +52,8 @@ private:
   // skopiowana od prowadzącego albo z internetu
   // potrzebujemy obrót i przybliżanie/oddalanie
 public:
-  Camera(glm::vec3 pos);
-  void change_mode();
+  Camera();
+  void change_mode(Worm* active_worm);
   void update_pos(glm::vec3 _pos);      //żeby kamera poruszała się razem z robaczkiem lub zmieniła ustawienie po mode_change
   bool get_mode(){return walking_mode;}        //potrzebne żeby kamera poruszała się razem z robaczkiem
 };

@@ -42,12 +42,11 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y){
 }
 
 void Model::readTextures(std::vector<const char*> filenames){
-  std::cout<<"hrer ok\n";
-  for (int i = 0; i < meshes.size(); i++){
-    std::cout<<filenames[i]<<std::endl;
+  for (int i = 0; i < filenames.size(); i++){
     meshes[i].readTexture(filenames[i]);
-    std::cout<<i<<" ok\n";
+    std::cout<<"Texture "<<filenames[i]<<" read\n";
   }
+
 }
 
 Mesh::Mesh(const aiScene* scene, int nr){
@@ -85,12 +84,9 @@ Mesh::Mesh(const aiScene* scene, int nr){
 }
 
 void Mesh::readTexture(const char* filename){
-  std::cout<<"inside ok\n";
   GLuint tex;
-  std::cout<<"ooo?\n";
 
   glActiveTexture(GL_TEXTURE0); //choose a texture handler to edit
-  std::cout<<"good\n";
 
   //Read the file into computers memory
   std::vector<unsigned char> image;   //Allocate a vector for storing the image
@@ -109,7 +105,6 @@ void Mesh::readTexture(const char* filename){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  std::cout<<"end inside ok\n";
   texture = tex;
 }
 

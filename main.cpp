@@ -76,11 +76,11 @@ GLFWwindow* create_window(){
 }
 
 int main(void){
-  std::vector<const char*> filenames = {"bricks.png", "metal.png", "tiger.png"};
-	Model worm("Sir_Wormie.obj");
-  // worm.readTextures(filenames);
-
   GLFWwindow* window = create_window();
+
+  std::vector<const char*> filenames = {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"};
+	Model worm("Sir_Wormie.obj");
+  worm.readTextures(filenames);
 
 	float angle_x = 0;
 	float angle_y = 0;

@@ -34,3 +34,8 @@
 #libraries
 assimp-5.0.1
 glm
+
+
+#other
+*.png
+.idea/*

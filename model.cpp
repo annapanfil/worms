@@ -1,7 +1,5 @@
 #include "model.hpp"
 
-//TODO: wywołać readTexture
-
 Model::Model(const std::string& obj_filename){
   load(obj_filename);
 }
@@ -25,20 +23,17 @@ void Model::load(const std::string& filename){
   }
 }
 
-void Model::draw(GLFWwindow* window,float angle_x,float angle_y){
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  glm::mat4 V=glm::lookAt(glm::vec3(0.0f, 7.0f,-10.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f)); //compute view matrix
+void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V){
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
 
   glm::mat4 M=glm::mat4(1.0f);
   M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Compute model matrix
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
+  M=glm::translate(M, position);
 
   for (auto i = meshes.begin(); i!=meshes.end(); ++i){
     i->draw(window, V, P, M);
   }
-  glfwSwapBuffers(window); //Copy back buffer to front buffer
 }
 
 void Model::readTextures(std::vector<const char*> filenames){
@@ -48,6 +43,8 @@ void Model::readTextures(std::vector<const char*> filenames){
   }
 
 }
+
+//////////////////////////////////////////////////////////////////////
 
 Mesh::Mesh(const aiScene* scene, int nr){
   aiMesh* mesh = scene->mMeshes[nr];
@@ -135,4 +132,107 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   glDisableVertexAttribArray(spLambertTextured->a("vertex")); //Disable sending data to the attribute vertex
 	glDisableVertexAttribArray(spLambertTextured->a("texCoord"));
 	glDisableVertexAttribArray(spLambertTextured->a("normal"));
+}
+
+//////////////////////////////////////////////////////////////////////
+
+SimpleModel::SimpleModel(){
+  vertexCount = 6;
+  vertices = {
+  				//Wall 3
+  				-1.0f,-1.0f,-1.0f,1.0f,
+  				1.0f,-1.0f, 1.0f,1.0f,
+  				1.0f,-1.0f,-1.0f,1.0f,
+
+  				-1.0f,-1.0f,-1.0f,1.0f,
+  				-1.0f,-1.0f, 1.0f,1.0f,
+  				1.0f,-1.0f, 1.0f,1.0f,
+  			};
+  normals = {
+  	//Wall 3
+  	0.0f,-1.0f, 0.0f,0.0f,
+  	0.0f,-1.0f, 0.0f,0.0f,
+  	0.0f,-1.0f, 0.0f,0.0f,
+
+  	0.0f,-1.0f, 0.0f,0.0f,
+  	0.0f,-1.0f, 0.0f,0.0f,
+  	0.0f,-1.0f, 0.0f,0.0f
+  };
+  vertexNormals = {
+  	//Wall 3
+  	-1.0f,-1.0f,-1.0f,0.0f,
+  	1.0f,-1.0f, 1.0f,0.0f,
+  	1.0f,-1.0f,-1.0f,0.0f,
+
+  	-1.0f,-1.0f,-1.0f,0.0f,
+  	-1.0f,-1.0f, 1.0f,0.0f,
+  	1.0f,-1.0f, 1.0f,0.0f
+  };
+  texCoords = {
+  				//Wall 3
+  				1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f,
+  				1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f
+  			};
+  readTexture("./textures/bricks.png");
+}
+
+void SimpleModel::draw(GLFWwindow* window, glm::mat4 V){
+  glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
+
+  glm::mat4 M=glm::mat4(1.0f);
+
+  spLambertTextured->use();  //activate shading program
+
+  //Send parameters to graphics card
+  glUniformMatrix4fv(spLambertTextured->u("P"),1,false,glm::value_ptr(P));
+  glUniformMatrix4fv(spLambertTextured->u("V"),1,false,glm::value_ptr(V));
+  glUniformMatrix4fv(spLambertTextured->u("M"),1,false,glm::value_ptr(M));
+
+  glEnableVertexAttribArray(spLambertTextured->a("vertex")); //Enable sending data to the attribute vertex
+  glVertexAttribPointer(spLambertTextured->a("vertex"),4,GL_FLOAT,false,0, vertices.data()); //Specify source of the data for the attribute vertex
+
+  glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
+  glVertexAttribPointer(spLambertTextured->a("texCoord"),4,GL_FLOAT,false,0, texCoords.data());
+
+  glEnableVertexAttribArray(spLambertTextured->a("normal"));
+  glVertexAttribPointer(spLambertTextured->a("normal"),4,GL_FLOAT,false,0, vertexNormals.data());
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, this->texture);
+  glUniform1i(spLambertTextured->u("tex"), 0);
+
+
+  glDrawArrays(GL_TRIANGLES, 0, vertexCount); //Draw the object
+
+  glDisableVertexAttribArray(spLambertTextured->a("vertex")); //Disable sending data to the attribute vertex
+  glDisableVertexAttribArray(spLambertTextured->a("texCoord"));
+  glDisableVertexAttribArray(spLambertTextured->a("normal"));
+
+}
+
+void SimpleModel::readTexture(const char* filename){
+  GLuint tex;
+
+  glActiveTexture(GL_TEXTURE0); //choose a texture handler to edit
+
+  //Read the file into computers memory
+  std::vector<unsigned char> image;   //Allocate a vector for storing the image
+  unsigned width, height;   //Variables which will contain the image size
+
+  //Read the image
+  unsigned error = lodepng::decode(image, width, height, filename);
+
+  std::cout<<"simple model texture reading: "<<error<<std::endl;
+
+  //Import the image into graphics cards memory
+  glGenTextures(1,&tex); //Initialize one handle
+  glBindTexture(GL_TEXTURE_2D, tex); //Activate handle (bind it to the active texturing unit)
+  //Import the image into the GC memory associated with the handle
+  glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
+    GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  texture = tex;
 }

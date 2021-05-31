@@ -10,5 +10,3 @@
 // #include "lodepng.h"
 #include "shaderprogram.h"
 #include "things.hpp"
-
-const float PI=3.1415;

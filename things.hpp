@@ -2,28 +2,34 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include "model.hpp"
 
+
+class Everything{
+public:
+  virtual void draw(GLFWwindow* window, glm::mat4 V) = 0;
+};
 
 class Worm;
 //eksplozja
 
-class Board{
+class Board: public Everything{
 private:
-  glm::vec3 pos;
+  glm::vec3 pos;  //na razie nieużywana
   float x;
   float z;
-  float Vertices[];
-  //Model3D earth;
+  SimpleModel model;
 
 public:
   Board();
   float get_x(){return x;}
   float get_z(){return z;}
-  float get_height(float x, float z); //jak poza planszą to coś tam
+  float get_height(float x, float z); //TODO
+  void draw(GLFWwindow* window, glm::mat4 V);
 };
 
 
-class Thing{
+class Thing: public Everything{
 private:
   float angle_x; //current rotation angle of the object, x axis
   float angle_y; //current rotation angle of the object, y axis
@@ -43,6 +49,7 @@ public:
   float get_angle_y(){return angle_y;}
   void set_angle_x(float _angle_x){angle_x = _angle_x;}
   void set_angle_y(float _angle_y){angle_y = _angle_y;}
+  virtual void draw(GLFWwindow* window, glm::mat4 V){;}
 };
 
 
@@ -65,11 +72,14 @@ private:
   int life; //if 0 then picture is grave
   Board* board;
   Camera* camera;
+  std::vector<const char*> filenames = {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"};
+  Model model;
 
 public:
-  Worm(std::string name, Board* board, Camera* camera);
-  void update(float speed, float angle_speed, double _time);
+  Worm(std::string name, Board* board, Camera* camera, const std::string& obj_filename);
+  void update(float speed, float angle_speed, double _time);    //TODO: obracanie kamery razem z robakiem
   void damage(int how_much);
+  void draw(GLFWwindow* window, glm::mat4 V);
 };
 
 

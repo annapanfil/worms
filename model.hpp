@@ -35,8 +35,26 @@ private:
   std::vector<Mesh> meshes;
   void load(const std::string& filename);
 public:
+  Model(){};
   Model(const std::string& obj_filename);
-  void draw(GLFWwindow* window,float angle_x,float angle_y); //shader musi już istnieć
+  void draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V); //shader musi już istnieć
   void readTextures(std::vector<const char*> filenames);
+};
 
+
+//TODO: supermodel
+
+class SimpleModel{
+private:
+  int vertexCount;
+  std::vector<float> vertices;
+  std::vector<float> normals;
+  std::vector<float> vertexNormals;
+  std::vector<float> texCoords;
+  GLuint texture;
+
+public:
+  SimpleModel();
+  void draw(GLFWwindow* window, glm::mat4 V);
+  void readTexture(const char* filename); //UWAGA! skopiowana z mesh
 };

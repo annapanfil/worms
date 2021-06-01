@@ -23,11 +23,12 @@ void Model::load(const std::string& filename){
   }
 }
 
-void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V){
+void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V, glm::vec3 scale=glm::vec3(1,1,1)){
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
 
   glm::mat4 M=glm::mat4(1.0f);
   M=glm::translate(M, position);
+  M=glm::scale(M, scale);
   M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Compute model matrix
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
 
@@ -137,17 +138,18 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
 //////////////////////////////////////////////////////////////////////
 
 SimpleModel::SimpleModel(){
+  float scale = 5;
   vertexCount = 6;
   vertices = {
-  				//Wall 3
-  				-1.0f,-1.0f,-1.0f,1.0f,
-  				1.0f,-1.0f, 1.0f,1.0f,
-  				1.0f,-1.0f,-1.0f,1.0f,
+		//Wall 3
+		-1.0f,-1.0f,-1.0f,1.0f,
+		1.0f,-1.0f, 1.0f,1.0f,
+		1.0f,-1.0f,-1.0f,1.0f,
 
-  				-1.0f,-1.0f,-1.0f,1.0f,
-  				-1.0f,-1.0f, 1.0f,1.0f,
-  				1.0f,-1.0f, 1.0f,1.0f,
-  			};
+		-1.0f,-1.0f,-1.0f,1.0f,
+		-1.0f,-1.0f, 1.0f,1.0f,
+		1.0f,-1.0f, 1.0f,1.0f,
+	};
   normals = {
   	//Wall 3
   	0.0f,-1.0f, 0.0f,0.0f,
@@ -180,6 +182,7 @@ void SimpleModel::draw(GLFWwindow* window, glm::mat4 V){
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
 
   glm::mat4 M=glm::mat4(1.0f);
+  M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f));
 
   spLambertTextured->use();  //activate shading program
 

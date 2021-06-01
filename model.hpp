@@ -37,7 +37,7 @@ private:
 public:
   Model(){};
   Model(const std::string& obj_filename);
-  void draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V); //shader musi już istnieć
+  void draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V, glm::vec3 scale); //shader musi już istnieć
   void readTextures(std::vector<const char*> filenames);
 };
 

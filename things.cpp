@@ -34,7 +34,7 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& ob
 }
 
 void Worm::draw(GLFWwindow* window, glm::mat4 V){
-  model.draw(window, get_angle_x(), 0, pos, V);
+  model.draw(window, get_angle_x(), 0, pos, V, glm::vec3(0.5f, 0.5f, 0.5f));
 }
 
 void Worm::update(float speed, float angle_speed, double _time){

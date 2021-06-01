@@ -27,9 +27,9 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
 
   glm::mat4 M=glm::mat4(1.0f);
+  M=glm::translate(M, position);
   M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Compute model matrix
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
-  M=glm::translate(M, position);
 
   for (auto i = meshes.begin(); i!=meshes.end(); ++i){
     i->draw(window, V, P, M);

@@ -37,6 +37,7 @@ public:
 };
 
 extern ShaderProgram* spLambertTextured;
+extern ShaderProgram* spConstant;
 
 void initShaders();
 void freeShaders();

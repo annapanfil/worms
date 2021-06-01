@@ -16,13 +16,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "shaderprogram.h"
 
 ShaderProgram* spLambertTextured;
+ShaderProgram* spConstant;
 
 void initShaders() {
 	spLambertTextured = new ShaderProgram("v_lamberttextured.glsl", NULL, "f_lamberttextured.glsl");
+	spConstant = new ShaderProgram("v_constant.glsl", NULL, "f_constant.glsl");
 }
 
 void freeShaders() {
 	delete spLambertTextured;
+	delete spConstant;
 }
 
 //Procedure reads a file into an array of chars

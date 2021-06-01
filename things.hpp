@@ -61,7 +61,7 @@ private:
 public:
   Camera();
   void change_mode(Worm* active_worm);
-  void update_pos(glm::vec3 _pos);      //żeby kamera poruszała się razem z robaczkiem lub zmieniła ustawienie po mode_change
+  void update_pos(glm::vec3 _pos, float delta_angle_x);      //żeby kamera poruszała się razem z robaczkiem lub zmieniła ustawienie po mode_change
   bool get_mode(){return walking_mode;}        //potrzebne żeby kamera poruszała się razem z robaczkiem
 };
 

@@ -34,18 +34,21 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& ob
 }
 
 void Worm::draw(GLFWwindow* window, glm::mat4 V){
-  model.draw(window, get_angle_x(), get_angle_y(), pos, V);
+  model.draw(window, get_angle_x(), 0, pos, V);
 }
 
 void Worm::update(float speed, float angle_speed, double _time){
   //przesunięcie w przestrzeni świata
   set_angle_x(get_angle_x()+angle_speed*_time);
+
   float x = pos[0] + speed*sin(get_angle_x())*_time;
   float z = pos[2] + speed*cos(get_angle_x())*_time;
   try{
     float y = board->get_height(x,z);
     pos = glm::vec3(x, y, z);
-    camera->update_pos(get_position());
+    std::cout<<get_angle_x()<<" "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<std::endl;
+
+    camera->update_pos(get_position(), get_angle_x());
   }
   catch(std::out_of_range){}
 }
@@ -109,9 +112,10 @@ void Camera::change_mode(Worm* active_worm){    //trzeba dodać angles
   walking_mode = -walking_mode;
 }
 
-
-void Camera::update_pos(glm::vec3 _pos){
-    this->pos = glm::vec3(_pos.x, _pos.y, _pos.z)+ glm::vec3(2, 10, -15);
+void Camera::update_pos(glm::vec3 worm_pos, float angle_x){
+  float distance = 10;   //odległość między kamerą a robakiem
+  this->pos = worm_pos+ glm::vec3(-sin(angle_x)*distance, 7, -cos(angle_x)*distance);
+  set_angle_x(angle_x);
 }
 
 ////////////////////////////////////////////////////////////////////

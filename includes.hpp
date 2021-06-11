@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h> //#include <windows.h>
 // #include "constants.h"
 // #include "lodepng.h"
 #include "shaderprogram.h"

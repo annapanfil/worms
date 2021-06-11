@@ -30,7 +30,7 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& ob
   this -> board = board;
   this -> camera = camera;
   this -> model = Model(obj_filename);
-  model.readTextures(filenames);
+  // model.readTextures(filenames); //TODO: odblokować tekstury
 }
 
 void Worm::draw(GLFWwindow* window, glm::mat4 V){
@@ -45,8 +45,8 @@ void Worm::update(float speed, float angle_speed, double _time){
   float z = pos[2] + speed*cos(get_angle_x())*_time;
   try{
     float y = board->get_height(x,z);
-    pos = glm::vec3(x, y, z);
-    std::cout<<get_angle_x()<<" "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<std::endl;
+    set_position(glm::vec3(x, y, z));
+    // std::cout<<get_angle_x()<<" "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<std::endl;
 
     camera->update_pos(get_position(), get_angle_x());
   }
@@ -60,13 +60,13 @@ void Worm::damage(int how_much){
 
 ////////////////////////////////////////////////////////////////////
 
-Bullet::Bullet(glm::vec3 pos, float angle_x, float angle_y): Thing(angle_x, angle_y, pos){
-  float speed_val = 10;
-  this -> speed = glm::vec3(speed_val*cos(angle_x)*cos(angle_y), speed_val*sin(angle_y), speed_val*sin(angle_x)*cos(angle_y));
+Bullet::Bullet(const std::string& obj_filename): Thing(0, 0, glm::vec3(0,0,0)){
+  this -> model = Model(obj_filename);
+  // model.readTextures(filenames);
 }
 
 void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float _time){
-  glm::vec3 gravity = glm::vec3(0, -0.02, 0);
+  glm::vec3 gravity = glm::vec3(0, 0, 0);
   this -> speed =  speed + gravity + _wind;
 }
 
@@ -91,10 +91,30 @@ bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
   }
 }
 
+void Bullet::shoot(glm::vec3 _pos, float _angle_x, float _angle_y){
+  set_position(_pos);
+  set_angle_x(_angle_x);
+  set_angle_y(_angle_y);
+  float speed_val = 1;
+  _angle_y = -_angle_y;
+  // _angle_x = -_angle_x;
+
+  this -> speed = glm::vec3(speed_val*sin(_angle_x)*cos(_angle_y), speed_val*sin(_angle_y), speed_val*cos(_angle_x)*cos(_angle_y));
+}
+
+void Bullet::draw(GLFWwindow* window, glm::mat4 V){
+  model.draw(window, get_angle_x(), 0, pos, V, glm::vec3(0.02f, 0.02f, 0.02f));
+}
+
+void Bullet::update(double time){
+  set_position(pos + speed*glm::vec3(time,time,time));
+}
+
 ////////////////////////////////////////////////////////////////////
 
 Camera::Camera(): Thing(0,0,glm::vec3(0,0,0)){
   walking_mode = true;
+  nose_vector = glm::vec3(0.0f,1.0f,0.0f);
 }
 
 void Camera::change_mode(Worm* active_worm){    //trzeba dodać angles
@@ -114,8 +134,14 @@ void Camera::change_mode(Worm* active_worm){    //trzeba dodać angles
 
 void Camera::update_pos(glm::vec3 worm_pos, float angle_x){
   float distance = 10;   //odległość między kamerą a robakiem
-  this->pos = worm_pos+ glm::vec3(-sin(angle_x)*distance, 7, -cos(angle_x)*distance);
+  this->pos = worm_pos + glm::vec3(-sin(angle_x)*distance, 7, -cos(angle_x)*distance);
   set_angle_x(angle_x);
+}
+
+void Camera::set_angle_y_restricted(float _angle_y){
+  if (abs(_angle_y) <= 0.6){
+    this -> set_angle_y(_angle_y);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////

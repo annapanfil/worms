@@ -138,43 +138,6 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
 //////////////////////////////////////////////////////////////////////
 
 SimpleModel::SimpleModel(){
-  float scale = 5;
-  vertexCount = 6;
-  vertices = {
-		//Wall 3
-		-1.0f,-1.0f,-1.0f,1.0f,
-		1.0f,-1.0f, 1.0f,1.0f,
-		1.0f,-1.0f,-1.0f,1.0f,
-
-		-1.0f,-1.0f,-1.0f,1.0f,
-		-1.0f,-1.0f, 1.0f,1.0f,
-		1.0f,-1.0f, 1.0f,1.0f,
-	};
-  normals = {
-  	//Wall 3
-  	0.0f,-1.0f, 0.0f,0.0f,
-  	0.0f,-1.0f, 0.0f,0.0f,
-  	0.0f,-1.0f, 0.0f,0.0f,
-
-  	0.0f,-1.0f, 0.0f,0.0f,
-  	0.0f,-1.0f, 0.0f,0.0f,
-  	0.0f,-1.0f, 0.0f,0.0f
-  };
-  vertexNormals = {
-  	//Wall 3
-  	-1.0f,-1.0f,-1.0f,0.0f,
-  	1.0f,-1.0f, 1.0f,0.0f,
-  	1.0f,-1.0f,-1.0f,0.0f,
-
-  	-1.0f,-1.0f,-1.0f,0.0f,
-  	-1.0f,-1.0f, 1.0f,0.0f,
-  	1.0f,-1.0f, 1.0f,0.0f
-  };
-  texCoords = {
-  				//Wall 3
-  				1.0f,1.0f, 0.0f,0.0f, 0.0f,1.0f,
-  				1.0f,1.0f, 1.0f,0.0f, 0.0f,0.0f
-  			};
   readTexture("./textures/bricks.png");
 }
 
@@ -182,6 +145,7 @@ void SimpleModel::draw(GLFWwindow* window, glm::mat4 V){
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //compute projection matrix
 
   glm::mat4 M=glm::mat4(1.0f);
+  M = glm::translate(M, glm::vec3(-2.5,-2,-2.5));
   M = glm::scale(M, glm::vec3(5.0f, 5.0f, 5.0f));
 
   spLambertTextured->use();  //activate shading program
@@ -192,20 +156,21 @@ void SimpleModel::draw(GLFWwindow* window, glm::mat4 V){
   glUniformMatrix4fv(spLambertTextured->u("M"),1,false,glm::value_ptr(M));
 
   glEnableVertexAttribArray(spLambertTextured->a("vertex")); //Enable sending data to the attribute vertex
-  glVertexAttribPointer(spLambertTextured->a("vertex"),4,GL_FLOAT,false,0, vertices.data()); //Specify source of the data for the attribute vertex
+  glVertexAttribPointer(spLambertTextured->a("vertex"),4,GL_FLOAT,false,0, verts); //Specify source of the data for the attribute vertex
 
   glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
-  glVertexAttribPointer(spLambertTextured->a("texCoord"),4,GL_FLOAT,false,0, texCoords.data());
+  glVertexAttribPointer(spLambertTextured->a("texCoord"),4,GL_FLOAT,false,0, texCoords);
 
   glEnableVertexAttribArray(spLambertTextured->a("normal"));
-  glVertexAttribPointer(spLambertTextured->a("normal"),4,GL_FLOAT,false,0, vertexNormals.data());
+  glVertexAttribPointer(spLambertTextured->a("normal"),4,GL_FLOAT,false,0, normals);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, this->texture);
   glUniform1i(spLambertTextured->u("tex"), 0);
 
 
-  glDrawArrays(GL_TRIANGLES, 0, vertexCount); //Draw the object
+  glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexes);
+ //Draw the object
 
   glDisableVertexAttribArray(spLambertTextured->a("vertex")); //Disable sending data to the attribute vertex
   glDisableVertexAttribArray(spLambertTextured->a("texCoord"));

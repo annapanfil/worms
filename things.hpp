@@ -18,13 +18,15 @@ private:
   glm::vec3 pos;  //na razie nieużywana
   float x;
   float z;
-  SimpleModel model;
+  // SimpleModel model;
+  Model model;
+  std::vector<const char*> filenames = {"textures/bricks.png"};
 
 public:
-  Board();
+  Board(const std::string& obj_filename);
   float get_x(){return x;}
   float get_z(){return z;}
-  float get_height(float x, float z); //TODO
+  float get_height(float x, float z);
   void draw(GLFWwindow* window, glm::mat4 V);
 };
 
@@ -98,7 +100,6 @@ public:
   bool check_collision(Board* board, std::vector<Worm*> worms);
   glm::vec3 get_speed() {return speed;}
   void shoot(glm::vec3 pos, float angle_x, float angle_y);
-  void update(double time);
   void draw(GLFWwindow* window, glm::mat4 V);
 
   //void explosion();

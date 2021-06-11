@@ -3,8 +3,17 @@
 #include "includes.hpp"
 
 /*TODO:
-- zamykanie okna od razu po wciśnięciu x
-- draw jako metoda w klasie thing, nie w worm i bullet
+- draw jako metoda w klasie thing, nie w worm i bullet D
+- obracanie robaka przy celowaniu D
+
+- wychodzenie za stół A
+- naprawa tekstur A
+
+- wiatr
+- celownik
+- życie
+- przeszkody
+- oświetlenie
 */
 
 
@@ -22,8 +31,14 @@ const float SPEED = 3;
 bool walking = true;
 
 
+class CloseWindowException: public std::exception{
+public :
+  CloseWindowException (){}
+};
 
- void draw_coords(glm::mat4 V){
+
+
+void draw_coords(glm::mat4 V){
 	std::vector<float> vertices = {10.0f, 0.0f,0.0f,   0.0f,0.0f,0.0f,  0.0f,10.0f,0.0f};
 
 
@@ -164,9 +179,9 @@ void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Everythin
   }
   bullet->draw(window, V);
 
-  sleep(1/24);
-
   glfwSwapBuffers(window);
+
+  sleep(1/24);
 }
 
 
@@ -211,12 +226,13 @@ int main(void)
 	srand(time(NULL));
   GLFWwindow* window = create_window();
 
-	Board board = Board(); //TODO: utworzyć planszę
+	Board board = Board("objects/table.obj");
 	Camera camera;
 
 	Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
 	Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
 	Bullet bullet = Bullet("objects/Orange.fbx");
+
 
 	camera.update_pos(worm1.get_position(), 0);
 	std::vector<Everything*> objects = {&board, &worm1, &worm2};
@@ -228,60 +244,72 @@ int main(void)
 
 	glfwSetTime(0); //Zero the timer
 	//Main application loop
-	while (!glfwWindowShouldClose(window))
-	{
-		for(int i=0; i<2; i++){
-      walking = true;
-			Worm* active_worm = worms[i];
-			clock_t start = clock();
-			//ruch gracza
-			while(((float)(clock() - start)/CLOCKS_PER_SEC <= 3) && walking == true){
-				active_worm->update(speed, angle_speed, glfwGetTime());
+  try{
+  	while (!glfwWindowShouldClose(window))
+  	{
+  		for(int i=0; i<2; i++){
+        walking = true;
+  			Worm* active_worm = worms[i];
+  			clock_t start = clock();
+  			//ruch gracza
+  			while(((float)(clock() - start)/CLOCKS_PER_SEC <= 3) && walking == true){
+  				active_worm->update(speed, angle_speed, glfwGetTime());
 
-				glfwSetTime(0);
+  				glfwSetTime(0);
 
-				drawSceneWalking(window, &camera, objects, active_worm);
-				glfwPollEvents();
-			}
+  				drawSceneWalking(window, &camera, objects, active_worm);
+  				glfwPollEvents();
+          if (glfwWindowShouldClose(window)){
+            throw CloseWindowException();
+          }
+  			}
 
-			//namierzanie
-      walking = false;
-      camera.change_mode(active_worm);
-		  while(walking==false){
+  			//namierzanie
+        walking = false;
+        camera.change_mode(active_worm);
+  		  while(walking==false){
 
-				camera.set_angle_x(camera.get_angle_x() + camera_angle_speed_x * glfwGetTime());
-				camera.set_angle_y_restricted(camera.get_angle_y() + camera_angle_speed_y * glfwGetTime());
+  				camera.set_angle_x(camera.get_angle_x() + camera_angle_speed_x * glfwGetTime());
+  				camera.set_angle_y_restricted(camera.get_angle_y() + camera_angle_speed_y * glfwGetTime());
 
+          glfwSetTime(0);
+
+  				drawSceneAiming(window, &camera, objects, active_worm);
+  				glfwPollEvents();
+          if (glfwWindowShouldClose(window)){
+            throw CloseWindowException();
+          }
+  			}
+
+        bullet.shoot(active_worm->get_position(), camera.get_angle_x(), camera.get_angle_y());
+
+  			camera.change_mode(active_worm);
         glfwSetTime(0);
+  			while(bullet.get_speed() != glm::vec3(0,0,0)){
+  				bullet.apply_gravity_and_wind(wind, glfwGetTime());
+  				bullet.check_collision(&board, worms);
 
-				drawSceneAiming(window, &camera, objects, active_worm);
-				glfwPollEvents();
-			}
+  				glfwSetTime(0);
 
-      bullet.shoot(active_worm->get_position() + glm::vec3(0,1,1), camera.get_angle_x(), camera.get_angle_y());
+  				camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
+  				camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
 
-			camera.change_mode(active_worm);
-      glfwSetTime(0);
-			while(bullet.get_speed() != glm::vec3(0,0,0)){
-				bullet.apply_gravity_and_wind(wind, glfwGetTime());
-				// bullet.check_collision(board, worms);
-        bullet.update(glfwGetTime());
+  				drawSceneShooting(window, &camera, objects, &bullet);
 
-				glfwSetTime(0);
+  				glfwPollEvents();
+          if (glfwWindowShouldClose(window)){
+            throw CloseWindowException();
+          }
+  			}
 
-				camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
-				camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
+  			drawSceneExplosion();
 
-				drawSceneShooting(window, &camera, objects, &bullet);
-
-
-				glfwPollEvents();
-			}
-
-			drawSceneExplosion();
-
-		}
-	}
+  		}
+  	}
+  }
+  catch(CloseWindowException){
+    cout<<"Goodbye!\n";
+  }
 	freeOpenGLProgram(window);
 
 	glfwDestroyWindow(window); //Delete OpenGL context and the window.

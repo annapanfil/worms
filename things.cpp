@@ -3,6 +3,8 @@
 #include "things.hpp"
 
 const glm::vec3 CAMERA_DEFAULT_POS = glm::vec3(2, 10, -15);
+const int R = 2;  //odległość trafienia robaka pociskiem
+bool show_textures = 1;
 
 ////////////////////////////////////////////////////////////////////
 
@@ -30,7 +32,7 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& ob
   this -> board = board;
   this -> camera = camera;
   this -> model = Model(obj_filename);
-  // model.readTextures(filenames); //TODO: odblokować tekstury
+  if(show_textures) model.readTextures(filenames); //TODO: odblokować tekstury
 }
 
 void Worm::draw(GLFWwindow* window, glm::mat4 V){
@@ -62,17 +64,18 @@ void Worm::damage(int how_much){
 
 Bullet::Bullet(const std::string& obj_filename): Thing(0, 0, glm::vec3(0,0,0)){
   this -> model = Model(obj_filename);
-  // model.readTextures(filenames);
+  if(show_textures) model.readTextures(filenames);
 }
 
-void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float _time){
-  glm::vec3 gravity = glm::vec3(0, 0, 0);
-  this -> speed =  speed + gravity + _wind;
+void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float time){
+  glm::vec3 gravity = glm::vec3(0, -1.5, 0);
+  set_position(pos + speed*glm::vec3(time,time,time));
+  this -> speed =  speed + (gravity + _wind) * glm::vec3(time,time,time) ;
 }
 
 bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
   try{
-    if(this->pos.y == _board -> get_height(this->pos.x, this->pos.z)){
+    if(this->pos.y <= _board -> get_height(this->pos.x, this->pos.z)){
       this->speed=glm::vec3(0,0,0);
       //wyświetl eksplozję
     }
@@ -80,10 +83,9 @@ bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
   catch(std::out_of_range){
     this->speed=speed*(-1.0f);
   }
-  float r = 2;
   for(int i=0; i<2; i++){
     float dist = glm::distance(this->get_position(), _worms[i]->get_position());
-    if(dist < r){
+    if(dist < R){
       _worms[i]->damage(1/dist*15);
       //eksplozja
       this->speed=glm::vec3(0,0,0);
@@ -92,22 +94,22 @@ bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
 }
 
 void Bullet::shoot(glm::vec3 _pos, float _angle_x, float _angle_y){
-  set_position(_pos);
-  set_angle_x(_angle_x);
-  set_angle_y(_angle_y);
-  float speed_val = 1;
+  std::cout<<"kąt x "<<_angle_x<<" kąt y "<<_angle_y<<" robak "<<_pos[0]<<", "<<_pos[1]<<", "<<_pos[2]<<" pocisk "<<(R+0.1)*sin(_angle_x)*cos(_angle_y)<<", "<<(R+0.1)*sin(_angle_y)<<", "<< (R+0.1)*cos(_angle_x)*cos(_angle_y)<<std::endl;
+
+
   _angle_y = -_angle_y;
   // _angle_x = -_angle_x;
+
+  set_position(_pos + glm::vec3(0,1,0) + glm::vec3((R+0.1)*sin(_angle_x)*cos(_angle_y), (R+0.1)*sin(_angle_y), (R+0.1)*cos(_angle_x)*cos(_angle_y)));
+  set_angle_x(_angle_x);
+  set_angle_y(_angle_y);
+  float speed_val = 4;
 
   this -> speed = glm::vec3(speed_val*sin(_angle_x)*cos(_angle_y), speed_val*sin(_angle_y), speed_val*cos(_angle_x)*cos(_angle_y));
 }
 
 void Bullet::draw(GLFWwindow* window, glm::mat4 V){
   model.draw(window, get_angle_x(), 0, pos, V, glm::vec3(0.02f, 0.02f, 0.02f));
-}
-
-void Bullet::update(double time){
-  set_position(pos + speed*glm::vec3(time,time,time));
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -146,11 +148,11 @@ void Camera::set_angle_y_restricted(float _angle_y){
 
 ////////////////////////////////////////////////////////////////////
 
-Board::Board(){
-  x=3;
-  z=3;
-  model = SimpleModel();
-  pos = glm::vec3(0,0,0); //nic nie robi
+Board::Board(const std::string& obj_filename){
+  // model = SimpleModel();
+  model = Model(obj_filename);
+  if(show_textures) model.readTextures(filenames);
+  pos = glm::vec3(0,-28,0);
 }
 
 float Board::get_height(float x, float z){
@@ -167,5 +169,6 @@ float Board::get_height(float x, float z){
 }
 
 void Board::draw(GLFWwindow* window, glm::mat4 V){
-  model.draw(window, V);
+  // model.draw(window, V);
+  model.draw(window, 0, 0, pos, V, glm::vec3(50.0f, 50.0f, 50.0f));
 }

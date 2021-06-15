@@ -268,7 +268,8 @@ int main(void)
         walking = false;
         camera.change_mode(active_worm);
   		  while(walking==false){
-
+				active_worm->update(0, camera_angle_speed_x, glfwGetTime());
+			  	//^obracanie robaczka podczas celowania
   				camera.set_angle_x(camera.get_angle_x() + camera_angle_speed_x * glfwGetTime());
   				camera.set_angle_y_restricted(camera.get_angle_y() + camera_angle_speed_y * glfwGetTime());
 

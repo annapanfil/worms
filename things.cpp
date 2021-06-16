@@ -73,7 +73,7 @@ void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float time){
   this -> speed =  speed + (gravity + _wind) * glm::vec3(time,time,time) ;
 }
 
-bool Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
+void Bullet::check_collision(Board* _board, std::vector<Worm*> _worms){
   try{
     if(this->pos.y <= _board -> get_height(this->pos.x, this->pos.z)){
       this->speed=glm::vec3(0,0,0);

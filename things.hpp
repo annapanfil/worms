@@ -97,7 +97,7 @@ private:
 public:
   Bullet(const std::string& obj_filename);
   void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
-  bool check_collision(Board* board, std::vector<Worm*> worms);
+  void check_collision(Board* board, std::vector<Worm*> worms);
   glm::vec3 get_speed() {return speed;}
   void shoot(glm::vec3 pos, float angle_x, float angle_y);
   void draw(GLFWwindow* window, glm::mat4 V);

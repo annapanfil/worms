@@ -226,12 +226,12 @@ int main(void)
 	srand(time(NULL));
   GLFWwindow* window = create_window();
 
-	Board board = Board("objects/wooden-table/source/model/model.dae");
+	Board board = Board("objects/table.dae");
 	Camera camera;
 
 	Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
 	Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
-	Bullet bullet = Bullet("objects/orange/scene.gltf");
+	Bullet bullet = Bullet("objects/orange.gltf");
 
 
   camera.update_pos(worm1.get_position(), 0);

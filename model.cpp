@@ -153,6 +153,7 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   glUniformMatrix4fv(spLambertTextured->u("P"),1,false,glm::value_ptr(P));
   glUniformMatrix4fv(spLambertTextured->u("V"),1,false,glm::value_ptr(V));
   glUniformMatrix4fv(spLambertTextured->u("M"),1,false,glm::value_ptr(M));
+  // glUniformMatrix4fv(sp->u("light_position"), )
 
 	glEnableVertexAttribArray(spLambertTextured->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(spLambertTextured->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex

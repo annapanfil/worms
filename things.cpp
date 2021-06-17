@@ -32,7 +32,7 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& ob
   this -> board = board;
   this -> camera = camera;
   this -> model = Model(obj_filename);
-  if(show_textures) model.readTextures(filenames); //TODO: odblokować tekstury
+  if(show_textures) model.readTextures(filenames);
 }
 
 void Worm::draw(GLFWwindow* window, glm::mat4 V){

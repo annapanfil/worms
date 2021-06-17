@@ -20,7 +20,7 @@ private:
   float z;
   // SimpleModel model;
   Model model;
-  std::vector<const char*> filenames = {"textures/bricks.png"};
+  std::vector<const char*> filenames = {"textures/table.png", "textures/table.png", "textures/table.png", "textures/table.png", "textures/table.png", "textures/table.png"};
 
 public:
   Board(const std::string& obj_filename);
@@ -96,7 +96,7 @@ private:
   std::vector<const char*> filenames = {"textures/orange.png"};
 public:
   Bullet(const std::string& obj_filename);
-  void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
+  void apply_gravity_and_wind(glm::vec3 wind, float time);
   bool check_collision(Board* board, std::vector<Worm*> worms);
   glm::vec3 get_speed() {return speed;}
   void shoot(glm::vec3 pos, float angle_x, float angle_y);

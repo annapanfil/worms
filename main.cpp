@@ -226,15 +226,15 @@ int main(void)
 	srand(time(NULL));
   GLFWwindow* window = create_window();
 
-	Board board = Board("objects/table.obj");
+	Board board = Board("objects/wooden-table/source/model/model.dae");
 	Camera camera;
 
 	Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
 	Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
-	Bullet bullet = Bullet("objects/Orange.fbx");
+	Bullet bullet = Bullet("objects/orange/scene.gltf");
 
 
-	camera.update_pos(worm1.get_position(), 0);
+  camera.update_pos(worm1.get_position(), 0);
 	std::vector<Everything*> objects = {&board, &worm1, &worm2};
 	std::vector<Worm*> worms = {&worm1, &worm2};
 

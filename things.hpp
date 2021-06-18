@@ -7,37 +7,33 @@
 class Everything {
 private:
 	glm::vec3 pos;
+  float angle_x; //current rotation angle of the object, x axis
+  float angle_y; //current rotation angle of the object, y axis
 public:
-	Everything(glm::vec3 _pos);
+	Everything(glm::vec3 _pos, float _angle_x, float _angle_y);
 	void set_position(glm::vec3 _pos) { pos = _pos; }
 	glm::vec3 get_position() { return pos; }
+  float get_angle_x() { return angle_x; }
+  float get_angle_y() { return angle_y; }
+  void set_angle_x(float _angle_x) { angle_x = _angle_x; }
+  void set_angle_y(float _angle_y) { angle_y = _angle_y; }
 };
 
 class Drawable: virtual public Everything {
 private:
 	Model model;
 	std::vector<const char*> filenames = { "textures/orange.png" };
+  glm::vec3 scale;
 public:
-	Drawable(const std::string& _model_filename, glm::vec3 pos);
+	Drawable(const std::string& _model_filename, glm::vec3 _scale);
 	void draw(GLFWwindow* window, glm::mat4 V); // , glm::vec3 scale);
 };
 
 class Movable: virtual public Everything {
-private:
-	float angle_x; //current rotation angle of the object, x axis
-	float angle_y; //current rotation angle of the object, y axis
-	//graficzna reprezentacja
-	//ewent. dorzucić macierz M
-	//void move(float x, float y, float z);   //czy to jest potrzebne? mamay update
 public:
-	Movable(float _angle_x, float angle_y, glm::vec3 pos);
 	void rotate(float angle, float time);
 	void turn_right(float angle);
 	void move_forward(float amount);
-	float get_angle_x() { return angle_x; }
-	float get_angle_y() { return angle_y; }
-	void set_angle_x(float _angle_x) { angle_x = _angle_x; }
-	void set_angle_y(float _angle_y) { angle_y = _angle_y; }
 };
 
 class Worm;
@@ -86,6 +82,7 @@ public:
 	Worm(std::string name, Board* board, Camera* camera, const std::string& obj_filename);
 	void update(float speed, float angle_speed, double _time);
 	void damage(int how_much);
+	static int count_worms;
 };
 
 

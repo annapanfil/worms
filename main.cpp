@@ -9,8 +9,6 @@
 
 
 /*TODO:
-- draw jako metoda w klasie thing, nie w worm i bullet D  
-- obracanie robaka przy celowaniu D  DONE
 - wychodzenie za stół A
 - naprawa tekstur A
 - nakładki 2D:
@@ -19,9 +17,8 @@
     - życie  + (kiedy życie się skończy zakończ grę)
 - przeszkody
 - oświetlenie
-- Bullet::check_collision must return value bool -> void
-- chodzenie/skręcanie jeśli nie przestanie się chodzić w czasie ruchu  DONE stop_movement()
-- draw_explosion() 
+- draw_explosion()
+- ustawienie kamery podczas strzału zależne od pozycji robaka
 */
 
 
@@ -60,29 +57,6 @@ void introscreen() {
     sprintf_s(buf, ":::::::::::::::");
     renderbitmap(-80, 35, glut_bitmap_times_new_roman_24, buf);
 } */
-
-void draw_coords(glm::mat4 V) {
-    std::vector<float> vertices = { 10.0f, 0.0f,0.0f,   0.0f,0.0f,0.0f,  0.0f,10.0f,0.0f };
-
-
-    glm::mat4 P = glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f);
-    glm::mat4 M = glm::mat4(1.0f);
-    spConstant->use();  //activate shading program
-
-    //Send parameters to graphics card
-    glUniformMatrix4fv(spConstant->u("P"), 1, false, glm::value_ptr(P));
-    glUniformMatrix4fv(spConstant->u("V"), 1, false, glm::value_ptr(V));
-    glUniformMatrix4fv(spConstant->u("M"), 1, false, glm::value_ptr(M));
-    glUniform4f(spConstant->u("color"), 1, 0, 0, 0);
-
-    glEnableVertexAttribArray(spConstant->a("vertex")); //Enable sending data to the attribute vertex
-    glVertexAttribPointer(spConstant->a("vertex"), 4, GL_FLOAT, false, 0, vertices.data()); //Specify source of the data for the attribute vertex
-
-    glDrawArrays(GL_LINES, 0, vertices.size()); //Draw the object
-
-    glDisableVertexAttribArray(spConstant->a("vertex")); //Disable sending data to the attribute vertex
-}
-
 
 
 void error_callback(int error, const char* description) {
@@ -211,7 +185,8 @@ void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*
 
     glfwSwapBuffers(window);
 
-    Sleep(1 / 24);
+    sleep(1 / 24); //Linux
+    //Sleep(1 / 24); //Windows
 }
 
 

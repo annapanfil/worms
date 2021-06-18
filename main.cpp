@@ -1,6 +1,12 @@
-#define GLM_FORCE_RADIANS
+
 
 #include "includes.hpp"
+//dodaj do includes.h
+//#include <iostream>
+//#include <fstream>
+//#include <stdlib.h>
+//#include <glut.h>
+
 
 /*TODO:
 - draw jako metoda w klasie thing, nie w worm i bullet D  
@@ -37,8 +43,23 @@ class CloseWindowException : public std::exception {
 public:
     CloseWindowException() {}
 };
+/*
+void renderbitmap(float x, float y, void* font, char* string) {
+    char* c;
+    glrasterpos2f(x, y);
+    for (c = string; *c != '\0'; c++) {
+        glutbitmapcharacter(font, *c);
+    }
+}
 
-
+void introscreen() {
+    glcolor3f(1.f, 1.f, 1.f);
+    char buf[100] = { 0 };
+    sprintf_s(buf, "worm 1 life:");
+    renderbitmap(-80, 40, glut_bitmap_times_new_roman_24, buf);
+    sprintf_s(buf, ":::::::::::::::");
+    renderbitmap(-80, 35, glut_bitmap_times_new_roman_24, buf);
+} */
 
 void draw_coords(glm::mat4 V) {
     std::vector<float> vertices = { 10.0f, 0.0f,0.0f,   0.0f,0.0f,0.0f,  0.0f,10.0f,0.0f };
@@ -128,7 +149,7 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
     return glm::vec3(dir);
 }  //podajemy kąty
 
-void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Everything*> objects, Worm* active_worm) {
+void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
@@ -147,7 +168,7 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Everything
     glfwSwapBuffers(window);
 }
 
-void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Everything*> objects, Worm* active_worm) {
+void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
@@ -170,7 +191,7 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Everything*
 }
 
 
-void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Everything*> objects, Bullet* bullet) {
+void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Bullet* bullet) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
@@ -264,7 +285,7 @@ int main(void)
 
 
     camera.update_pos(worm1.get_position(), 0);
-    std::vector<Everything*> objects = { &board, &worm1, &worm2 };
+    std::vector<Drawable*> objects = { &board, &worm1, &worm2 };
     std::vector<Worm*> worms = { &worm1, &worm2 };
 
     // glm::vec3 wind = glm::vec3((std::rand()%21)/10-10, (std::rand()%7)/10-3, (std::rand()%21)/10-10);

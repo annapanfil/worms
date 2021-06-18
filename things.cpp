@@ -38,7 +38,6 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _m
     srand(time(NULL));
     int x = std::rand()*count_worms % (int)(board->get_x());
     int z = std::rand()*count_worms % (int)(board->get_z());
-    std::cout<<x<<" "<<z<<std::endl;
     set_position(glm::vec3(x, board->get_height(x, z), z));
     count_worms++;
 }
@@ -53,9 +52,9 @@ void Worm::update(float speed, float angle_speed, double _time) {
     try {
         float y = board->get_height(x, z);
         set_position(glm::vec3(x, y, z));
-        // std::cout<<get_angle_x()<<" "<<pos[0]<<" "<<pos[1]<<" "<<pos[2]<<std::endl;
 
         camera->update_pos(get_position(), get_angle_x());
+        std::cout<<get_position().x<<" "<<get_position().z<<std::endl;
     }
     catch (std::out_of_range) {}
 }
@@ -98,10 +97,7 @@ void Bullet::check_collision(Board* _board, std::vector<Worm*> _worms) {
 }
 
 void Bullet::shoot(glm::vec3 _pos, float _angle_x, float _angle_y) {
-    std::cout << "kąt x " << _angle_x << " kąt y " << _angle_y << " robak " << _pos[0] << ", " << _pos[1] << ", " << _pos[2] << " pocisk " << (R + 0.1) * sin(_angle_x) * cos(_angle_y) << ", " << (R + 0.1) * sin(_angle_y) << ", " << (R + 0.1) * cos(_angle_x) * cos(_angle_y) << std::endl;
-
     _angle_y = -_angle_y;
-    // _angle_x = -_angle_x;
 
     set_position(_pos + glm::vec3(0, 1, 0) + glm::vec3((R + 0.1) * sin(_angle_x) * cos(_angle_y), (R + 0.1) * sin(_angle_y), (R + 0.1) * cos(_angle_x) * cos(_angle_y)));
     set_angle_x(_angle_x);
@@ -148,7 +144,7 @@ void Camera::set_angle_y_restricted(float _angle_y) {
 
 ////////////////////////////////////////////////////////////////////
 
-Board::Board(const std::string& obj_filename): Drawable(obj_filename, glm::vec3(50.0f,50.0f,50.0f)), Everything(glm::vec3(0, -28, 0)) {
+Board::Board(const std::string& obj_filename): Drawable(obj_filename, glm::vec3(50.0f,50.0f,50.0f)), Everything(glm::vec3(0, -26, 0)) {
     x = 30;
     z = 30;
 }

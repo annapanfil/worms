@@ -4,7 +4,8 @@
 uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
-uniform vec4 light_position; //in world space
+uniform vec4 light_position = vec4(20,30,-35,0); //in world space
+
 
 //Attributes
 in vec4 vertex; //Vertex coordinates in model space
@@ -14,15 +15,15 @@ in vec2 texCoord; //texturing coordinates
 
 //Zmienne interpolowane
 out vec4 i_color; // interpolowany kolor
-out n;
-out l;
-out v;
+out vec4 n;       // wektor normalny powierzchi w przestrzeni oka
+out vec4 l;    // znormalizowany wektor do źródła światła w przestrzeni oka
+out vec4 v;
 out vec2 i_texc;  // współrzędne teksturowania
 
 
 void main(void) {
-    l = normalize(V*light_position - V*M*vertex); // znormalizowany wektor do źródła światła w przestrzeni oka
-    n = normalize(V*M*normal); // w przestrzeni oka
+    l = normalize(V*light_position - V*M*vertex);
+    n = normalize(V*M*normal);
     // float nl = clamp(dot(n, l), 0,1); // cos kąta
     // kąt nie może być rozwarty (byłby pod powierzchnią)
 
@@ -42,7 +43,7 @@ void main(void) {
     //alfa – określa jak bardzo światło jest rozpraszane (0-300+)
 
     // vec4 r = reflect(-l, n); //w przestrzeni oka, bo l i n są w tej przestrzeni
-    v = normalize(vec4(0,0,0,1) - V*M*vertex) //od powierzchni do obserwatora
+    v = normalize(vec4(0,0,0,1) - V*M*vertex); //od powierzchni do obserwatora
     // float alfa = 25;
     // float rv = pow(clamp(dot(r,v), 0, 1), alfa)
     //

@@ -263,8 +263,6 @@ int main(void)
     std::vector<Drawable*> objects = { &board, &worm1, &worm2 };
     std::vector<Worm*> worms = { &worm1, &worm2 };
 
-    // glm::vec3 wind = glm::vec3((std::rand()%21)/10-10, (std::rand()%7)/10-3, (std::rand()%21)/10-10);
-    glm::vec3 wind = glm::vec3(0, 0, 0);
     float angle_x, angle_y;
 
     glfwSetTime(0); //Zero the timer
@@ -272,6 +270,8 @@ int main(void)
     try {
         while (!glfwWindowShouldClose(window))
         {
+            glm::vec3 wind = glm::vec3((std::rand()%40)/10-2, (std::rand()%20)/10-1, (std::rand()%40)/10-2);
+
             for (int i = 0; i < 2; i++) {
                 walking = true;
                 Worm* active_worm = worms[i];

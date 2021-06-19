@@ -37,13 +37,40 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
 
   for (auto i = meshes.begin(); i!=meshes.end(); ++i){
-    i->draw(window, V, P, M);
+    i->draw(window, V, P, M, this->textures);
   }
 }
 
+
+void Model::readTexture(const char* filename){
+  GLuint tex;
+
+  glActiveTexture(GL_TEXTURE0); //choose a texture handler to edit
+
+  //Read the file into computers memory
+  std::vector<unsigned char> image;   //Allocate a vector for storing the image
+  unsigned width, height;   //Variables which will contain the image size
+
+  //Read the image
+  unsigned error = lodepng::decode(image, width, height, filename);
+
+  //Import the image into graphics cards memory
+  glGenTextures(1,&tex); //Initialize one handle
+  glBindTexture(GL_TEXTURE_2D, tex); //Activate handle (bind it to the active texturing unit)
+  //Import the image into the GC memory associated with the handle
+  glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
+    GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  this->textures.push_back(tex);
+}
+
+
 void Model::readTextures(std::vector<const char*> filenames){
   for (int i = 0; i < filenames.size(); i++){
-    meshes[i].readTexture(filenames[i]);
+    this->readTexture(filenames[i]);
     std::cout<<"Texture "<<filenames[i]<<" read\n";
   }
 
@@ -104,31 +131,6 @@ Mesh::Mesh(const aiScene* scene, int nr){
   // }
 }
 
-void Mesh::readTexture(const char* filename){
-  GLuint tex;
-
-  glActiveTexture(GL_TEXTURE0); //choose a texture handler to edit
-
-  //Read the file into computers memory
-  std::vector<unsigned char> image;   //Allocate a vector for storing the image
-  unsigned width, height;   //Variables which will contain the image size
-
-  //Read the image
-  unsigned error = lodepng::decode(image, width, height, filename);
-
-  //Import the image into graphics cards memory
-  glGenTextures(1,&tex); //Initialize one handle
-  glBindTexture(GL_TEXTURE_2D, tex); //Activate handle (bind it to the active texturing unit)
-  //Import the image into the GC memory associated with the handle
-  glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
-    GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  texture = tex;
-}
-
 /* ze strony assimpa, do wczytania większej ilości tekstur
 vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
 {
@@ -146,7 +148,7 @@ vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string
     return textures;
 }  */
 
-void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
+void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::vector<GLuint> textures){
   sp->use();  //activate shading program
 
 	//Send parameters to graphics card
@@ -154,6 +156,7 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
   glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
   // glUniformMatrix4fv(sp->u("light_position"), )
+  glUniform1i(sp->u("texMap0"), 0); // powiązanie zmiennej z jednostką teksturującą
 
 	glEnableVertexAttribArray(sp->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex
@@ -165,7 +168,7 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glUniform1i(sp->u("tex"), 0);
 
 

@@ -22,10 +22,10 @@ public:
 class Drawable: virtual public Everything {
 private:
 	Model model;
-	std::vector<const char*> filenames = { "textures/orange.png" };
+	// std::vector<const char*> filenames = { "textures/orange.png" };
   glm::vec3 scale;
 public:
-	Drawable(const std::string& _model_filename, glm::vec3 _scale);
+	Drawable(const std::string& _model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale);
 	void draw(GLFWwindow* window, glm::mat4 V); // , glm::vec3 scale);
 };
 

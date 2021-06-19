@@ -150,16 +150,16 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   sp->use();  //activate shading program
 
 	//Send parameters to graphics card
-  glUniformMatrix4fv(spLambertTextured->u("P"),1,false,glm::value_ptr(P));
-  glUniformMatrix4fv(spLambertTextured->u("V"),1,false,glm::value_ptr(V));
-  glUniformMatrix4fv(spLambertTextured->u("M"),1,false,glm::value_ptr(M));
+  glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
+  glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
+  glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
   // glUniformMatrix4fv(sp->u("light_position"), )
 
 	glEnableVertexAttribArray(sp->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex
 
-	glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
-  glVertexAttribPointer(spLambertTextured->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
+	glEnableVertexAttribArray(sp->a("texCoord"));
+  glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
 	glEnableVertexAttribArray(sp->a("normal"));
   glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());

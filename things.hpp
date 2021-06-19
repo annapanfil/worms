@@ -91,11 +91,12 @@ class Bullet : public Movable, public Drawable {
 private:
 	glm::vec3 speed;
 	//std::vector<const char*> filenames = { "textures/orange.png" };
-	Bullet(const std::string& obj_filename);
-	void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
-	void check_collision(Board* board, std::vector<Worm*> worms);
-	glm::vec3 get_speed() { return speed; }
-	void shoot(glm::vec3 pos, float angle_x, float angle_y);
 
 	//void explosion();
+public:
+	Bullet(const std::string& obj_filename);
+	void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
+	glm::vec3 get_speed() { return speed; }
+	void check_collision(Board* board, std::vector<Worm*> worms);
+	void shoot(glm::vec3 pos, float angle_x, float angle_y);
 };

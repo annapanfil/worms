@@ -1,6 +1,7 @@
 #version 330
 
-uniform sampler2D texMap0; //jednostka teksturująca
+uniform sampler2D texMapColor; //jednostka teksturująca
+uniform sampler2D texMapReflect;
 
 out vec4 pixelColor; //Output variable. Almost final pixel color
 
@@ -15,14 +16,14 @@ float toonify(float a, float s){
 }
 
 void main(void) {
-	vec4 kd = texture(texMap0,i_texc); //kolor powierzchni
+	vec4 kd = texture(texMapColor,i_texc); //kolor powierzchni
 
 	vec4 ml = normalize(l);
 	vec4 mn = normalize(n);
 	vec4 mv = normalize(v);
 	vec4 mr = reflect(-ml, mn); //w przestrzeni oka, bo l i n są w tej przestrzeni
 
-	vec4 ks = kd;	//kolor światła odbitego
+	vec4 ks = texture(texMapReflect,i_texc);	//kolor światła odbitego
 
 	float nl = clamp(dot(mn, ml), 0,1); // cos kąta
 	float alfa = 25;

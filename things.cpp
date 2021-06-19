@@ -30,7 +30,10 @@ void Drawable::draw(GLFWwindow* window, glm::mat4 V) {
 int Worm::count_worms = 1;
 
 
-Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) : Movable(), Drawable(_model_filename, {"textures/skin.png"}, glm::vec3(0.5f,0.5f,0.5f)), Everything(){
+Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) :
+  Movable(),
+  Drawable(_model_filename, {"textures/skin.png", "textures/skin.png"}, glm::vec3(0.5f,0.5f,0.5f)),
+  Everything(){
     this->name = name;
     this->life = 100;
     this->board = board;
@@ -65,7 +68,10 @@ void Worm::damage(int how_much) {
 
 ////////////////////////////////////////////////////////////////////
 
-Bullet::Bullet(const std::string& obj_filename) : Movable(), Drawable(obj_filename, {"textures/orange.png"}, glm::vec3(0.02f,0.02f,0.02f)), Everything() {
+Bullet::Bullet(const std::string& obj_filename) :
+  Movable(),
+  Drawable(obj_filename, {"textures/orange.png", "textures/orange.png"}, glm::vec3(0.02f,0.02f,0.02f)),
+  Everything() {
 }
 
 void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float time) {
@@ -143,7 +149,9 @@ void Camera::set_angle_y_restricted(float _angle_y) {
 
 ////////////////////////////////////////////////////////////////////
 
-Board::Board(const std::string& obj_filename): Drawable(obj_filename, {"textures/table.png"}, glm::vec3(50.0f,50.0f,50.0f)), Everything(glm::vec3(0, -26, 0)) {
+Board::Board(const std::string& obj_filename):
+  Drawable(obj_filename, {"textures/table.png", "textures/table_reflect.png"}, glm::vec3(50.0f,50.0f,50.0f)),
+  Everything(glm::vec3(0, -26, 0)) {
     x = 30;
     z = 30;
 }

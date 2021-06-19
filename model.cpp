@@ -156,7 +156,6 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
   glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
   glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
   // glUniformMatrix4fv(sp->u("light_position"), )
-  glUniform1i(sp->u("texMap0"), 0); // powiązanie zmiennej z jednostką teksturującą
 
 	glEnableVertexAttribArray(sp->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex
@@ -167,9 +166,13 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	glEnableVertexAttribArray(sp->a("normal"));
   glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
 
+  glUniform1i(sp->u("texMapColor"), 0); // powiązanie zmiennej z jednostką teksturującą
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	glUniform1i(sp->u("tex"), 0);
+
+  glUniform1i(sp->u("texMapReflect"), 1);
+  glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
 
 
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, indices.data()); //Draw the object

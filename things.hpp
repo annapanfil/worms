@@ -29,6 +29,7 @@ public:
 	void draw(GLFWwindow* window, glm::mat4 V); // , glm::vec3 scale);
 };
 
+
 class Movable: virtual public Everything {
 public:
 	void rotate(float angle, float time);
@@ -90,7 +91,6 @@ class Bullet : public Movable, public Drawable {
 private:
 	glm::vec3 speed;
 	//std::vector<const char*> filenames = { "textures/orange.png" };
-public:
 	Bullet(const std::string& obj_filename);
 	void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
 	void check_collision(Board* board, std::vector<Worm*> worms);

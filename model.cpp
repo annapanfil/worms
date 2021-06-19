@@ -1,10 +1,14 @@
 #include "model.hpp"
 
+using std::endl;
+using std::cout;
+
 Model::Model(const std::string& obj_filename){
   load(obj_filename);
 }
 
 void Model::load(const std::string& filename){
+  cout<<"wczytywanie modelu "<<filename<<endl;
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(filename,
     aiProcess_Triangulate |	//model będzie składał się tylko z trójkątów
@@ -12,7 +16,7 @@ void Model::load(const std::string& filename){
     aiProcess_GenSmoothNormals //Generuj uśrednione wektory normalne, jeśli ich nie ma
     // aiProcess_JoinIdenticalVertices
     //   aiProcess_CalcTangentSpace       | //wylicz przestrzeń styczną, które tworzą przestrzeń ściany; przydatne dla bump shadingu
-    // aiProcess_SortByPType
+    // | aiProcess_SortByPType
   );
   std::cout<<importer.GetErrorString()<<std::endl;
 
@@ -45,10 +49,12 @@ void Model::readTextures(std::vector<const char*> filenames){
 
 }
 
+
 //////////////////////////////////////////////////////////////////////
 
 Mesh::Mesh(const aiScene* scene, int nr){
   aiMesh* mesh = scene->mMeshes[nr];
+  cout<<"Mesh "<<nr<<endl;
 
 	//WIERZCHOŁKI
 	for (int i=0; i<mesh->mNumVertices; i++){
@@ -58,15 +64,17 @@ Mesh::Mesh(const aiScene* scene, int nr){
 		aiVector3D normal = mesh->mNormals[i];	//wertory znormalizowane
 		norms.push_back(glm::vec4(normal.x, normal.y, normal.z, 0)); //kierunek a nie pozycja, więc w=0
 
-		//może być do 8 zestawów współrzędnych teksturowania.
-		unsigned int uv_num = mesh->GetNumUVChannels();
-		// std::cout<<"Liczba zestawów współrzędnych teksturowania: "<<uv_num<<std::endl;
-		unsigned int uv_dim = mesh->mNumUVComponents[0]; //Ilość składowych wsp. teksturowania dla 0. zestawu
-		// std::cout<<"Liczba współrzędnych: "<<uv_dim<<std::endl;
-
-		aiVector3D texCoord = mesh->mTextureCoords[0][i];
+		aiVector3D texCoord = mesh->mTextureCoords[0][i]; //numer zestawu, numer wierzchołka
 		texCoords.push_back(glm::vec2(texCoord.x, texCoord.y)); //jeżeli tekstura ma tylko 2 wymiary
 	}
+
+  //niepotrzebne
+  //może być do 8 zestawów współrzędnych teksturowania.
+  unsigned int uv_num = mesh->GetNumUVChannels();
+  std::cout<<"Liczba zestawów współrzędnych teksturowania: "<<uv_num<<std::endl;
+  unsigned int uv_dim = mesh->mNumUVComponents[0]; //Ilość składowych wsp. teksturowania dla 0. zestawu
+  std::cout<<"Liczba współrzędnych: "<<uv_dim<<std::endl;
+
 
 	//WIELOKĄTY SKŁADOWE
 	for (int i=0; i<mesh->mNumFaces; i++){
@@ -78,7 +86,22 @@ Mesh::Mesh(const aiScene* scene, int nr){
 	}
 
   //TEKSTURY
-  //TODO again ^%&^*&^%#$@
+  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+  //sprawdzenie jakie tekstury ma obiekt i gdzie one są
+  //aiTextureType - rodzaj tekstury (enum)
+  // cout<<"Rodzaje tekstur"<<endl;
+  // for (int i=0; i<19; i++){
+  //   cout<<i<<" "<<material->GetTextureCount(aiTextureType(i))<<endl;
+  // }
+  //
+  // for (int i=0; i<material->GetTextureCount(aiTextureType(1));
+  // i++){
+  //   aiString filename;
+  //   material->GetTexture(aiTextureType(1), i, &filename);
+  //   cout<<filename.C_Str()<<endl;
+  //
+  // }
 }
 
 void Mesh::readTexture(const char* filename){
@@ -106,19 +129,37 @@ void Mesh::readTexture(const char* filename){
   texture = tex;
 }
 
+/* ze strony assimpa, do wczytania większej ilości tekstur
+vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
+{
+    vector<Texture> textures;
+    for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    {
+        aiString str;
+        mat->GetTexture(type, i, &str);
+        Texture texture;
+        texture.id = TextureFromFile(str.C_Str(), directory);
+        texture.type = typeName;
+        texture.path = str;
+        textures.push_back(texture);
+    }
+    return textures;
+}  */
+
 void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M){
   sp->use();  //activate shading program
 
 	//Send parameters to graphics card
-  glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
-  glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
-  glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
+  glUniformMatrix4fv(spLambertTextured->u("P"),1,false,glm::value_ptr(P));
+  glUniformMatrix4fv(spLambertTextured->u("V"),1,false,glm::value_ptr(V));
+  glUniformMatrix4fv(spLambertTextured->u("M"),1,false,glm::value_ptr(M));
+  // glUniformMatrix4fv(sp->u("light_position"), )
 
 	glEnableVertexAttribArray(sp->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex
 
-	glEnableVertexAttribArray(sp->a("texCoord"));
-  glVertexAttribPointer(sp->a("texCoord"),4,GL_FLOAT,false,0, texCoords.data());
+	glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
+  glVertexAttribPointer(spLambertTextured->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
 	glEnableVertexAttribArray(sp->a("normal"));
   glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());

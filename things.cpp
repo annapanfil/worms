@@ -54,7 +54,6 @@ void Worm::update(float speed, float angle_speed, double _time) {
         set_position(glm::vec3(x, y, z));
 
         camera->update_pos(get_position(), get_angle_x());
-        std::cout<<get_position().x<<" "<<get_position().z<<std::endl;
     }
     catch (std::out_of_range) {}
 }

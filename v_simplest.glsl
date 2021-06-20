@@ -5,7 +5,7 @@ uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
 // uniform vec4 light_position = vec4(20,30,-35,0); //in world space
-uniform vec4 light_position = vec4(0,20,0,0);
+uniform vec4 light_position = vec4(0,50,0,0);
 
 
 //Attributes
@@ -13,9 +13,6 @@ in vec4 vertex; //Vertex coordinates in model space
 //in vec4 color;
 in vec4 normal; //in model space
 in vec2 texCoord; //texturing coordinates
-// in vec4 c1;
-// in vec4 c2;
-// in vec4 c3;
 in vec4 tangent; // in model space
 
 
@@ -59,10 +56,6 @@ void main(void) {
     //normal mapping
     // wszystko wyrażamy do przestrzeni styczniej
     //invTBM -> z modelu do stycznej
-
-
-    // mat4 invTBN = mat4(c1,c2,c3, vec4(0,0,0,1)); //podanie macierzy kolumnowo
-
 
     vec4 norm_n = normalize(normal);
     vec4 norm_bitangent = normalize(vec4(cross(norm_n.xyz, tangent.xyz),0));

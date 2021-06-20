@@ -17,7 +17,9 @@ float toonify(float a, float s){
 }
 
 void main(void) {
-	vec4 kd = texture(texMapColor,i_texc); //kolor powierzchni
+	float brighteness = 1.5;
+
+	vec4 kd = texture(texMapColor,i_texc) * brighteness; //kolor powierzchni
 
 	vec4 ml = normalize(l);
 	// vec4 mn = normalize(n);

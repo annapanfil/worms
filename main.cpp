@@ -254,10 +254,10 @@ int main(void)
     Board board = Board("objects/table.obj");
     Camera camera;
 
-    // Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
-    // Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
-    Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Orange.fbx");
-    Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Orange.fbx");
+    Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
+    Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
+    // Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Orange.fbx");
+    // Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Orange.fbx");
     Bullet bullet = Bullet("objects/Orange.fbx");
 
 

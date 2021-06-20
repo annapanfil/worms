@@ -30,9 +30,9 @@ void Drawable::draw(GLFWwindow* window, glm::mat4 V) {
 int Worm::count_worms = 1;
 
 
-Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) :
+Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename, std::vector<const char*> tex_filenames) :
   Movable(),
-  Drawable(_model_filename, {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"},
+  Drawable(_model_filename, tex_filenames,
   glm::vec3(0.5f,0.5f,0.5f), false),
   Everything(){
     this->name = name;
@@ -53,7 +53,7 @@ void Worm::update(float speed, float angle_speed, double _time) {
 
     float x = get_position()[0] + speed * sin(get_angle_x()) * _time;
     float z = get_position()[2] + speed * cos(get_angle_x()) * _time;
-    if (abs(x) < 29 && abs(z) < 48){
+    if (abs(x) < board->get_x() && abs(z) < board->get_z()){
       try {
           float y = board->get_height(x, z);
           set_position(glm::vec3(x, y, z));
@@ -73,9 +73,9 @@ void Worm::damage(int how_much) {
 
 ////////////////////////////////////////////////////////////////////
 
-Bullet::Bullet(const std::string& obj_filename) :
+Bullet::Bullet(const std::string& obj_filename, std::vector<const char*> tex_filenames) :
   Movable(),
-  Drawable(obj_filename, {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"}, glm::vec3(0.02f,0.02f,0.02f)),
+  Drawable(obj_filename, tex_filenames, glm::vec3(0.02f,0.02f,0.02f)),
   Everything() {
 }
 
@@ -154,11 +154,11 @@ void Camera::set_angle_y_restricted(float _angle_y) {
 
 ////////////////////////////////////////////////////////////////////
 
-Board::Board(const std::string& obj_filename):
-  Drawable(obj_filename, {"textures/table.png", "textures/table_reflect.png", "textures/table_normal.png"}, glm::vec3(50.0f,50.0f,50.0f)),
+Board::Board(const std::string& obj_filename, std::vector<const char*> tex_filenames):
+  Drawable(obj_filename, tex_filenames, glm::vec3(50.0f,50.0f,50.0f)),
   Everything(glm::vec3(0, -26, 0)) {
-    x = 30;
-    z = 30;
+    x = 29;
+    z = 48;
 }
 
 float Board::get_height(float x, float z) {

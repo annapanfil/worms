@@ -37,16 +37,14 @@ public:
 };
 
 class Worm;
-//eksplozja
 
 class Board : public Drawable {
 private:
 	float x; //rozmiar
 	float z; //size
-	//std::vector<const char*> filenames = { "textures/bricks.png" };
 
 public:
-	Board(const std::string& obj_filename);
+	Board(const std::string& obj_filename, std::vector<const char*> tex_filenames);
 	float get_x() { return x; }
 	float get_z() { return z; }
 	float get_height(float x, float z);
@@ -58,8 +56,6 @@ class Camera : public Movable {
 private:
 	bool walking_mode;
 
-	// skopiowana od prowadzącego albo z internetu
-	// potrzebujemy obrót i przybliżanie/oddalanie
 public:
 	glm::vec3 nose_vector;
 	Camera();
@@ -76,10 +72,9 @@ private:
 	int life; //if 0 then picture is grave
 	Board* board;
 	Camera* camera;
-	//std::vector<const char*> filenames = { "textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png" };
 
 public:
-	Worm(std::string name, Board* board, Camera* camera, const std::string& obj_filename);
+	Worm(std::string name, Board* board, Camera* camera, const std::string& obj_filename, std::vector<const char*> tex_filenames);
 	void update(float speed, float angle_speed, double _time);
 	void damage(int how_much);
 	static int count_worms;
@@ -89,12 +84,11 @@ public:
 class Bullet : public Movable, public Drawable {
 private:
 	glm::vec3 speed;
-	//std::vector<const char*> filenames = { "textures/orange.png" };
-
 	//void explosion();
+
 public:
-	Bullet(const std::string& obj_filename);
-	void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
+	Bullet(const std::string& obj_filename, std::vector<const char*> tex_filenames);
+	void apply_gravity_and_wind(glm::vec3 wind, float time);
 	glm::vec3 get_speed() { return speed; }
 	void check_collision(Board* board, std::vector<Worm*> worms);
 	void shoot(glm::vec3 pos, float angle_x, float angle_y);

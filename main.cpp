@@ -1,16 +1,11 @@
-
-
 #include "includes.hpp"
 //dodaj do includes.h
 //#include <iostream>
 //#include <fstream>
-//#include <stdlib.h>
 //#include <glut.h>
 
 
 /*TODO:
-- wychodzenie za stół A
-- naprawa tekstur A
 - nakładki 2D:
     - wiatr
     - celownik
@@ -257,16 +252,11 @@ int main(void)
     srand(time(NULL));
     GLFWwindow* window = create_window();
 
-    std::string worm_obj = "objects/Sir_Wormie.obj";
-    std::string bullet_obj = "objects/Orange.fbx";
-    std::string table_obj = "objects/table.obj";
-    std::vector<const char*> bullet_textures = {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"};
-
-    Board board = Board(table_obj);
+    Board board = Board(table_obj, table_textures);
     Camera camera;
-    Worm worm1 = Worm("Napoleon", &board, &camera, worm_obj);
-    Worm worm2 = Worm("Che Guevara", &board, &camera, worm_obj);
-    Bullet bullet = Bullet(bullet_obj);
+    Worm worm1 = Worm("Napoleon", &board, &camera, worm_obj, worm_textures);
+    Worm worm2 = Worm("Che Guevara", &board, &camera, worm_obj, worm_textures);
+    Bullet bullet = Bullet(bullet_obj, bullet_textures);
     Drawable obstacle_orange = Drawable(bullet_obj, bullet_textures, glm::vec3(0.2f,0.2f,0.2f), true);
 
     obstacle_orange.set_position(glm::vec3(0,2.4f,0));

@@ -13,9 +13,7 @@ void Model::load(const std::string& filename){
     aiProcess_Triangulate |	//model będzie składał się tylko z trójkątów
     aiProcess_FlipUVs			|	//odwrócenie współrzędnych - (0,0) będzie w lewym dolnym rogu
     aiProcess_GenSmoothNormals //Generuj uśrednione wektory normalne, jeśli ich nie ma
-    // aiProcess_JoinIdenticalVertices
     | aiProcess_CalcTangentSpace //wylicz przestrzeń styczną
-    // | aiProcess_SortByPType
   );
   std::cout<<importer.GetErrorString()<<std::endl;
 

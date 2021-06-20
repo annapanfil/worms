@@ -23,9 +23,13 @@ private:
   std::vector<glm::vec4> norms;
   std::vector<glm::vec2> texCoords;
   std::vector<unsigned int> indices;
-  //TODO: add c1, c2, c3
+  std::vector<glm::vec4> invTBNx; // columns for invTBN matrix
+  std::vector<glm::vec4> invTBNy;
+  std::vector<glm::vec4> invTBNz;
+  // std::vector<glm::vec4> tangents;
 public:
   Mesh(const aiScene* scene, int nr);
+  void calc_TBN_vectors(aiFace& face);
   void draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::vector<GLuint> textures);
 };
 

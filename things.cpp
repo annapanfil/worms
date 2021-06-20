@@ -32,7 +32,8 @@ int Worm::count_worms = 1;
 
 Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) :
   Movable(),
-  Drawable(_model_filename, {"textures/skin.png", "textures/skin.png", "textures/skin.png"}, glm::vec3(0.5f,0.5f,0.5f)),
+  // Drawable(_model_filename, {"textures/skin.png", "textures/skin.png", "textures/skin.png"}, glm::vec3(0.5f,0.5f,0.5f)),
+  Drawable(_model_filename, {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"}, glm::vec3(0.2f,0.20f,0.2f)),
   Everything(){
     this->name = name;
     this->life = 100;

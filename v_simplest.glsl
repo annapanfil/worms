@@ -59,7 +59,7 @@ void main(void) {
     //invTBM -> z modelu do stycznej
 
     mat4 invTBN = mat4(c1,c2,c3, vec4(0,0,0,1)); //podanie macierzy kolumnowo
-    l = normalize(invTBN*inverse(M)*V*light_position - invTBN*vertex);
+    l = normalize(invTBN*inverse(M)*light_position - invTBN*vertex);
     v = normalize(invTBN*inverse(V*M)*vec4(0,0,0,1) - invTBN*vertex); //od powierzchni do obserwatora
 
 

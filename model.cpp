@@ -1,7 +1,5 @@
 #include "model.hpp"
 
-using std::endl;
-using std::cout;
 
 Model::Model(const std::string& obj_filename, bool _whole=true){
   load(obj_filename);
@@ -9,7 +7,7 @@ Model::Model(const std::string& obj_filename, bool _whole=true){
 }
 
 void Model::load(const std::string& filename){
-  cout<<"wczytywanie modelu "<<filename<<endl;
+  std::cout<<"\nReading model "<<filename;
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(filename,
     aiProcess_Triangulate |	//model będzie składał się tylko z trójkątów
@@ -38,7 +36,6 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
 
   for (int i=0; i<meshes.size(); i++){
-  // for (auto i = meshes.begin(); i!=meshes.end(); ++i){
     if (this->whole)
       meshes[i].draw(window, V, P, M, this->textures);
     else
@@ -86,7 +83,6 @@ void Model::readTextures(std::vector<const char*> filenames){
 
 Mesh::Mesh(const aiScene* scene, int nr){
   aiMesh* mesh = scene->mMeshes[nr];
-  cout<<"Mesh "<<nr<<endl;
 
 	//WIERZCHOŁKI
 	for (int i=0; i<mesh->mNumVertices; i++){
@@ -107,14 +103,6 @@ Mesh::Mesh(const aiScene* scene, int nr){
     tangents.push_back(glm::vec4(tangent.x, tangent.y, tangent.z, 0));
 	}
 
-  //niepotrzebne
-  //może być do 8 zestawów współrzędnych teksturowania.
-  // unsigned int uv_num = mesh->GetNumUVChannels();
-  // std::cout<<"Liczba zestawów współrzędnych teksturowania: "<<uv_num<<std::endl;
-  // unsigned int uv_dim = mesh->mNumUVComponents[0]; //Ilość składowych wsp. teksturowania dla 0. zestawu
-  // std::cout<<"Liczba współrzędnych: "<<uv_dim<<std::endl;
-
-
 	//WIELOKĄTY SKŁADOWE
 	for (int i=0; i<mesh->mNumFaces; i++){
 		aiFace& face = mesh->mFaces[i];	// face to 1 wielokąt siatki
@@ -123,94 +111,11 @@ Mesh::Mesh(const aiScene* scene, int nr){
 			indices.push_back(face.mIndices[j]);
 		}
 
-
-    // this->calc_TBN_vectors(face);
-
-
 	}
 
   //TEKSTURY
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-  //sprawdzenie jakie tekstury ma obiekt i gdzie one są
-  //aiTextureType - rodzaj tekstury (enum)
-  // cout<<"Rodzaje tekstur"<<endl;
-  // for (int i=0; i<19; i++){
-  //   cout<<i<<" "<<material->GetTextureCount(aiTextureType(i))<<endl;
-  // }
-  //
-  // for (int i=0; i<material->GetTextureCount(aiTextureType(1));
-  // i++){
-  //   aiString filename;
-  //   material->GetTexture(aiTextureType(1), i, &filename);
-  //   cout<<filename.C_Str()<<endl;
-  //
-  // }
 }
-
- /*void Mesh::calc_TBN_vectors(aiFace& face){
-  glm::vec2 uv1 = this->texCoords[face.mIndices[0]];
-  glm::vec2 uv2 = this->texCoords[face.mIndices[1]];
-  glm::vec2 uv3 = this->texCoords[face.mIndices[2]];
-
-  glm::vec4 pos1 = this->verts[face.mIndices[0]];
-  glm::vec4 pos2 = this->verts[face.mIndices[1]];
-  glm::vec4 pos3 = this->verts[face.mIndices[2]];
-
-  glm::vec2 deltaUV1 = uv2-uv1;
-  glm::vec2 deltaUV2 = uv3-uv1;
-  glm::vec4 edge1 = pos2-pos1;
-  glm::vec4 edge2 = pos3-pos1;
-
-  // glm::mat2 c = glm::mat2(glm::vec2(c21[0], c31[0]), glm::vec2(c21[1],c31[1]));
-  // glm::vec2 v = glm::vec2(edge1,edge2);
-  // glm::vec2 tb = glm::transpose(c)*v;
-  // auto t = glm::normalize(tb[0]);
-  // auto b = glm::normalize(tb[1]);
-
-  // glm::vec4 t = glm::normalize(c21[0] * edge1 + c31[0] * edge2);
-  // glm::vec4 b = glm::normalize(c21[1] * edge1 + c31[1] * edge2);
-  // auto n = glm::normalize(t * b);
-
-  float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
-
-  glm::vec4 t;
-  glm::vec4 b;
-
-  t.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
-  t.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
-  t.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
-
-  b.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
-  b.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
-  b.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
-
-  glm::vec4 n = glm::normalize(t * b);
-  t = glm::normalize(t);
-  b = glm::normalize(b);
-
-
-  this->invTBNx.push_back(glm::vec4(t.x, b.x, n.x, 0));
-  this->invTBNy.push_back(glm::vec4(t.y, b.y, n.y, 0));
-  this->invTBNz.push_back(glm::vec4(t.z, b.z, n.z, 0));
-}*/
-
-/* ze strony assimpa, do wczytania większej ilości tekstur
-vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
-{
-    vector<Texture> textures;
-    for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-    {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        Texture texture;
-        texture.id = TextureFromFile(str.C_Str(), directory);
-        texture.type = typeName;
-        texture.path = str;
-        textures.push_back(texture);
-    }
-    return textures;
-}  */
 
 void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::vector<GLuint> textures){
   sp->use();  //activate shading program

@@ -32,7 +32,6 @@ int Worm::count_worms = 1;
 
 Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) :
   Movable(),
-  // Drawable(_model_filename, {"textures/skin.png", "textures/skin.png", "textures/empty_normal.png"},
   Drawable(_model_filename, {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"},
   glm::vec3(0.5f,0.5f,0.5f), false),
   Everything(){
@@ -54,15 +53,17 @@ void Worm::update(float speed, float angle_speed, double _time) {
 
     float x = get_position()[0] + speed * sin(get_angle_x()) * _time;
     float z = get_position()[2] + speed * cos(get_angle_x()) * _time;
-    try {
-        float y = board->get_height(x, z);
-        set_position(glm::vec3(x, y, z));
+    if (abs(x) < 29 && abs(z) < 48){
+      try {
+          float y = board->get_height(x, z);
+          set_position(glm::vec3(x, y, z));
 
-        camera->update_pos(get_position(), get_angle_x());
+          camera->update_pos(get_position(), get_angle_x());
+      }
+      catch (std::out_of_range) {}
     }
-    catch (std::out_of_range) {}
 
-    std::cout<<get_position()[0]<<" "<<get_position()[1]<<" "<<get_position()[2]<<std::endl;
+    // std::cout<<get_position()[0]<<" "<<get_position()[1]<<" "<<get_position()[2]<<std::endl;
 }
 
 

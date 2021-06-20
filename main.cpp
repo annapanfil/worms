@@ -251,18 +251,22 @@ int main(void)
     srand(time(NULL));
     GLFWwindow* window = create_window();
 
-    Board board = Board("objects/table.obj");
+    std::string worm_obj = "objects/Sir_Wormie.obj";
+    std::string bullet_obj = "objects/Orange.fbx";
+    std::string table_obj = "objects/table.obj";
+    std::vector<const char*> bullet_textures = {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"};
+
+    Board board = Board(table_obj);
     Camera camera;
+    Worm worm1 = Worm("Napoleon", &board, &camera, worm_obj);
+    Worm worm2 = Worm("Che Guevara", &board, &camera, worm_obj);
+    Bullet bullet = Bullet(bullet_obj);
+    Drawable obstacle_orange = Drawable(bullet_obj, bullet_textures, glm::vec3(0.2f,0.2f,0.2f), true);
 
-    Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Sir_Wormie.obj");
-    Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Sir_Wormie.obj");
-    // Worm worm1 = Worm("Napoleon", &board, &camera, "objects/Orange.fbx");
-    // Worm worm2 = Worm("Che Guevara", &board, &camera, "objects/Orange.fbx");
-    Bullet bullet = Bullet("objects/Orange.fbx");
-
-
+    obstacle_orange.set_position(glm::vec3(0,2.4f,0));
     camera.update_pos(worm1.get_position(), 0);
-    std::vector<Drawable*> objects = { &board, &worm1, &worm2 };
+
+    std::vector<Drawable*> objects = {&board, &worm1, &worm2, &obstacle_orange};
     std::vector<Worm*> worms = { &worm1, &worm2 };
 
     float angle_x, angle_y;

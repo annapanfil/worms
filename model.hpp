@@ -23,6 +23,7 @@ private:
   std::vector<glm::vec4> norms;
   std::vector<glm::vec2> texCoords;
   std::vector<unsigned int> indices;
+  //TODO: add c1, c2, c3
 public:
   Mesh(const aiScene* scene, int nr);
   void draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::vector<GLuint> textures);

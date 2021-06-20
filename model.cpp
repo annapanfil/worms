@@ -163,8 +163,17 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	glEnableVertexAttribArray(sp->a("texCoord"));
   glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
-	glEnableVertexAttribArray(sp->a("normal"));
-  glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
+	// glEnableVertexAttribArray(sp->a("normal"));
+  // glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
+
+  glEnableVertexAttribArray(sp->a("c1"));
+  glVertexAttribPointer(sp->a("c1"),4,GL_FLOAT,false,0, c1);
+
+  glEnableVertexAttribArray(sp->a("c2"));
+  glVertexAttribPointer(sp->a("c2"),4,GL_FLOAT,false,0, c2);
+
+  glEnableVertexAttribArray(sp->a("c3"));
+  glVertexAttribPointer(sp->a("c3"),4,GL_FLOAT,false,0, c3);
 
   glUniform1i(sp->u("texMapColor"), 0); // powiązanie zmiennej z jednostką teksturującą
 	glActiveTexture(GL_TEXTURE0);
@@ -180,6 +189,9 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
   glDisableVertexAttribArray(sp->a("vertex")); //Disable sending data to the attribute vertex
 	glDisableVertexAttribArray(sp->a("texCoord"));
 	glDisableVertexAttribArray(sp->a("normal"));
+  glDisableVertexAttribArray(sp->a("c1"));
+  glDisableVertexAttribArray(sp->a("c2"));
+  glDisableVertexAttribArray(sp->a("c3"));
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -21,7 +21,7 @@ in vec4 tangent; // in model space
 
 //Zmienne interpolowane
 // out vec4 i_color; // interpolowany kolor
-out vec4 n;     // wektor normalny powierzchi w przestrzeni oka
+// out vec4 n;     // wektor normalny powierzchi w przestrzeni oka
 out vec4 l;    // znormalizowany wektor do źródła światła w przestrzeni oka
 out vec4 v;
 out vec2 i_texc;  // współrzędne teksturowania
@@ -29,7 +29,7 @@ out vec2 i_texc;  // współrzędne teksturowania
 
 void main(void) {
     // l = normalize(V*light_position - V*M*vertex);
-    n = normalize(V*M*normal);
+    // n = normalize(V*M*normal);
     // float nl = clamp(dot(n, l), 0,1); // cos kąta
     // kąt nie może być rozwarty (byłby pod powierzchnią)
 
@@ -64,9 +64,9 @@ void main(void) {
     // mat4 invTBN = mat4(c1,c2,c3, vec4(0,0,0,1)); //podanie macierzy kolumnowo
 
 
-    vec4 norm_bitangent = normalize(tangent * n);
+    vec4 norm_n = normalize(normal);
+    vec4 norm_bitangent = normalize(norm_n * tangent);
     vec4 norm_tangent = normalize(tangent);
-    vec4 norm_n = normalize(n);
     mat4 TBN = mat4(norm_tangent, norm_bitangent, norm_n, vec4(0,0,0,1));
     mat4 invTBN = inverse(TBN);
 

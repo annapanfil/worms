@@ -98,8 +98,8 @@ Mesh::Mesh(const aiScene* scene, int nr){
 		texCoords.push_back(glm::vec2(texCoord.x, texCoord.y)); //jeżeli tekstura ma tylko 2 wymiary
 
     // // PRZESTRZEŃ STYCZNA
-    glm::vec4 t = glm::vec4(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0);
-    tangents.push_back(t);
+    aiVector3D tangent = mesh->mTangents[i];
+    tangents.push_back(glm::vec4(tangent.x, tangent.y, tangent.z, 0));
 	}
 
   //niepotrzebne
@@ -222,8 +222,8 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	glEnableVertexAttribArray(sp->a("texCoord"));
   glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
-	// glEnableVertexAttribArray(sp->a("normal"));
-  // glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
+	glEnableVertexAttribArray(sp->a("normal"));
+  glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
 
   // glEnableVertexAttribArray(sp->a("c1"));
   // glVertexAttribPointer(sp->a("c1"),4,GL_FLOAT,false,0, invTBNx.data());

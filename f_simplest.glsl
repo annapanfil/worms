@@ -6,7 +6,7 @@ uniform sampler2D texMapNormal;
 
 out vec4 pixelColor; //Output variable. Almost final pixel color
 
-in vec4 i_color;
+// in vec4 i_color;
 // in vec4 n;
 in vec4 l;
 in vec4 v;

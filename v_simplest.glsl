@@ -65,7 +65,7 @@ void main(void) {
 
 
     vec4 norm_n = normalize(normal);
-    vec4 norm_bitangent = normalize(norm_n * tangent);
+    vec4 norm_bitangent = normalize(vec4(cross(norm_n.xyz, tangent.xyz),0));
     vec4 norm_tangent = normalize(tangent);
     mat4 TBN = mat4(norm_tangent, norm_bitangent, norm_n, vec4(0,0,0,1));
     mat4 invTBN = inverse(TBN);

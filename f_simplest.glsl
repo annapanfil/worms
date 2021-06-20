@@ -1,6 +1,6 @@
 #version 330
 
-uniform sampler2D tex;
+uniform sampler2D tex; //jednostka teksturująca
 
 out vec4 pixelColor; //Output variable. Almost final pixel color
 
@@ -10,28 +10,24 @@ in vec4 l;
 in vec4 v;
 in vec2 i_texc;
 
-float toonify(float a, float s){
-	return round(s*a)/s;
-}
-
 void main(void) {
-	vec4 color=texture(tex,i_texc);
+	float brighteness = 1.5;
+
+	vec4 kd = texture(tex,i_texc) * brighteness; //kolor powierzchni
 
 	vec4 ml = normalize(l);
 	vec4 mn = normalize(n);
 	vec4 mv = normalize(v);
-
 	vec4 mr = reflect(-ml, mn); //w przestrzeni oka, bo l i n są w tej przestrzeni
+
+	vec4 ks = kd;	//kolor światła odbitego
+
 	float nl = clamp(dot(mn, ml), 0,1); // cos kąta
 	float alfa = 25;
 	float rv = pow(clamp(dot(mr,mv), 0, 1), alfa);
 
-	//cieniowanie kreskówkowe
-	// nl = toonify(nl, 4);
-	// rv = toonify(rv, 4);
-
-
-	pixelColor=vec4(color.rgb * nl, i_color.a) + vec4(rv, rv, rv, 0);
+//L = ka*la + kd*ld*nl + ks*ls*pow(rv, alfa)
+	pixelColor=vec4(kd.rgb * nl, kd.a) + vec4(ks.rgb*rv, 0);
 
 
 

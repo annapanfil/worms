@@ -15,20 +15,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "shaderprogram.h"
 
-// ShaderProgram* spLambertTextured;
-// ShaderProgram* spConstant;
 ShaderProgram* sp;
+ShaderProgram* sp_simpler;
 
 void initShaders() {
-	// spLambertTextured = new ShaderProgram("v_lamberttextured.glsl", NULL, "f_lamberttextured.glsl");
-	// spConstant = new ShaderProgram("v_constant.glsl", NULL, "f_constant.glsl");
-	sp = new ShaderProgram("v_simplest.glsl", NULL, "f_simplest.glsl");
+	sp = new ShaderProgram("v_shader.glsl", NULL, "f_shader.glsl");
+	sp_simpler = new ShaderProgram("v_simplest.glsl", NULL, "f_simplest.glsl");
 }
 
 void freeShaders() {
-	// delete spLambertTextured;
-	// delete spConstant;
 	delete sp;
+	delete sp_simpler;
 }
 
 //Procedure reads a file into an array of chars

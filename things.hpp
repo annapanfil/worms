@@ -22,12 +22,12 @@ public:
 class Drawable: virtual public Everything {
 private:
 	Model model;
-	std::vector<const char*> filenames = { "textures/orange.png" };
   glm::vec3 scale;
 public:
-	Drawable(const std::string& _model_filename, glm::vec3 _scale);
+	Drawable(const std::string& _model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole);
 	void draw(GLFWwindow* window, glm::mat4 V); // , glm::vec3 scale);
 };
+
 
 class Movable: virtual public Everything {
 public:
@@ -90,12 +90,12 @@ class Bullet : public Movable, public Drawable {
 private:
 	glm::vec3 speed;
 	//std::vector<const char*> filenames = { "textures/orange.png" };
+
+	//void explosion();
 public:
 	Bullet(const std::string& obj_filename);
 	void apply_gravity_and_wind(glm::vec3 wind, float time);  //na razie czas nie potrzebny
-	void check_collision(Board* board, std::vector<Worm*> worms);
 	glm::vec3 get_speed() { return speed; }
+	void check_collision(Board* board, std::vector<Worm*> worms);
 	void shoot(glm::vec3 pos, float angle_x, float angle_y);
-
-	//void explosion();
 };

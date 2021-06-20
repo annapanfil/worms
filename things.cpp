@@ -60,6 +60,8 @@ void Worm::update(float speed, float angle_speed, double _time) {
         camera->update_pos(get_position(), get_angle_x());
     }
     catch (std::out_of_range) {}
+
+    std::cout<<get_position()[0]<<" "<<get_position()[1]<<" "<<get_position()[2]<<std::endl;
 }
 
 

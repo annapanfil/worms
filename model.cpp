@@ -15,7 +15,7 @@ void Model::load(const std::string& filename){
     aiProcess_FlipUVs			|	//odwrócenie współrzędnych - (0,0) będzie w lewym dolnym rogu
     aiProcess_GenSmoothNormals //Generuj uśrednione wektory normalne, jeśli ich nie ma
     // aiProcess_JoinIdenticalVertices
-    aiProcess_CalcTangentSpace       | //wylicz przestrzeń styczną, które tworzą przestrzeń ściany; przydatne dla bump shadingu
+    | aiProcess_CalcTangentSpace //wylicz przestrzeń styczną
     // | aiProcess_SortByPType
   );
   std::cout<<importer.GetErrorString()<<std::endl;
@@ -98,8 +98,8 @@ Mesh::Mesh(const aiScene* scene, int nr){
 		texCoords.push_back(glm::vec2(texCoord.x, texCoord.y)); //jeżeli tekstura ma tylko 2 wymiary
 
     // // PRZESTRZEŃ STYCZNA
-    // glm::vec4 t = glm::vec4(mesh->mTangents[i].xyz, 0);
-    // tangents.push_back(t);
+    glm::vec4 t = glm::vec4(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0);
+    tangents.push_back(t);
 	}
 
   //niepotrzebne
@@ -118,8 +118,8 @@ Mesh::Mesh(const aiScene* scene, int nr){
 			indices.push_back(face.mIndices[j]);
 		}
 
-  /
-    this->calc_TBN_vectors(face);
+
+    // this->calc_TBN_vectors(face);
 
 
 	}
@@ -143,7 +143,7 @@ Mesh::Mesh(const aiScene* scene, int nr){
   // }
 }
 
-void Mesh::calc_TBN_vectors(aiFace& face){
+ /*void Mesh::calc_TBN_vectors(aiFace& face){
   glm::vec2 uv1 = this->texCoords[face.mIndices[0]];
   glm::vec2 uv2 = this->texCoords[face.mIndices[1]];
   glm::vec2 uv3 = this->texCoords[face.mIndices[2]];
@@ -188,7 +188,7 @@ void Mesh::calc_TBN_vectors(aiFace& face){
   this->invTBNx.push_back(glm::vec4(t.x, b.x, n.x, 0));
   this->invTBNy.push_back(glm::vec4(t.y, b.y, n.y, 0));
   this->invTBNz.push_back(glm::vec4(t.z, b.z, n.z, 0));
-}
+}*/
 
 /* ze strony assimpa, do wczytania większej ilości tekstur
 vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
@@ -225,14 +225,17 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	// glEnableVertexAttribArray(sp->a("normal"));
   // glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
 
-  glEnableVertexAttribArray(sp->a("c1"));
-  glVertexAttribPointer(sp->a("c1"),4,GL_FLOAT,false,0, invTBNx.data());
+  // glEnableVertexAttribArray(sp->a("c1"));
+  // glVertexAttribPointer(sp->a("c1"),4,GL_FLOAT,false,0, invTBNx.data());
+  //
+  // glEnableVertexAttribArray(sp->a("c2"));
+  // glVertexAttribPointer(sp->a("c2"),4,GL_FLOAT,false,0, invTBNy.data());
+  //
+  // glEnableVertexAttribArray(sp->a("c3"));
+  // glVertexAttribPointer(sp->a("c3"),4,GL_FLOAT,false,0, invTBNz.data());
 
-  glEnableVertexAttribArray(sp->a("c2"));
-  glVertexAttribPointer(sp->a("c2"),4,GL_FLOAT,false,0, invTBNy.data());
-
-  glEnableVertexAttribArray(sp->a("c3"));
-  glVertexAttribPointer(sp->a("c3"),4,GL_FLOAT,false,0, invTBNz.data());
+  glEnableVertexAttribArray(sp->a("tangent"));
+  glVertexAttribPointer(sp->a("tangent"),4,GL_FLOAT,false,0, tangents.data());
 
   glUniform1i(sp->u("texMapColor"), 0); // powiązanie zmiennej z jednostką teksturującą
 	glActiveTexture(GL_TEXTURE0);
@@ -251,9 +254,10 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
   glDisableVertexAttribArray(sp->a("vertex")); //Disable sending data to the attribute vertex
 	glDisableVertexAttribArray(sp->a("texCoord"));
 	glDisableVertexAttribArray(sp->a("normal"));
-  glDisableVertexAttribArray(sp->a("invTBNx"));
-  glDisableVertexAttribArray(sp->a("invTBNy"));
-  glDisableVertexAttribArray(sp->a("invTBNz"));
+  glDisableVertexAttribArray(sp->a("tangent"));
+  // glDisableVertexAttribArray(sp->a("c1"));
+  // glDisableVertexAttribArray(sp->a("c2"));
+  // glDisableVertexAttribArray(sp->a("c3"));
 }
 
 /////////////////////////////////////////////////////////////////////

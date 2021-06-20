@@ -4,22 +4,24 @@
 uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
-uniform vec4 light_position = vec4(20,30,-35,0); //in world space
+// uniform vec4 light_position = vec4(20,30,-35,0); //in world space
+uniform vec4 light_position = vec4(0,20,0,0);
 
 
 //Attributes
 in vec4 vertex; //Vertex coordinates in model space
 //in vec4 color;
-//in vec4 normal; //in model space
+in vec4 normal; //in model space
 in vec2 texCoord; //texturing coordinates
-in vec4 c1;
-in vec4 c2;
-in vec4 c3;
+// in vec4 c1;
+// in vec4 c2;
+// in vec4 c3;
+in vec4 tangent; // in model space
 
 
 //Zmienne interpolowane
 // out vec4 i_color; // interpolowany kolor
-//out vec4 n;       // wektor normalny powierzchi w przestrzeni oka
+out vec4 n;     // wektor normalny powierzchi w przestrzeni oka
 out vec4 l;    // znormalizowany wektor do źródła światła w przestrzeni oka
 out vec4 v;
 out vec2 i_texc;  // współrzędne teksturowania
@@ -27,7 +29,7 @@ out vec2 i_texc;  // współrzędne teksturowania
 
 void main(void) {
     // l = normalize(V*light_position - V*M*vertex);
-    // n = normalize(V*M*normal);
+    n = normalize(V*M*normal);
     // float nl = clamp(dot(n, l), 0,1); // cos kąta
     // kąt nie może być rozwarty (byłby pod powierzchnią)
 
@@ -58,11 +60,18 @@ void main(void) {
     // wszystko wyrażamy do przestrzeni styczniej
     //invTBM -> z modelu do stycznej
 
-    mat4 invTBN = mat4(c1,c2,c3, vec4(0,0,0,1)); //podanie macierzy kolumnowo
+
+    // mat4 invTBN = mat4(c1,c2,c3, vec4(0,0,0,1)); //podanie macierzy kolumnowo
+
+
+    vec4 norm_bitangent = normalize(tangent * n);
+    vec4 norm_tangent = normalize(tangent);
+    vec4 norm_n = normalize(n);
+    mat4 TBN = mat4(norm_tangent, norm_bitangent, norm_n, vec4(0,0,0,1));
+    mat4 invTBN = inverse(TBN);
+
     l = normalize(invTBN*inverse(M)*light_position - invTBN*vertex);
     v = normalize(invTBN*inverse(V*M)*vec4(0,0,0,1) - invTBN*vertex); //od powierzchni do obserwatora
-
-
 
     i_texc=texCoord;
 

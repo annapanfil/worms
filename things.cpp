@@ -15,9 +15,9 @@ Everything::Everything(glm::vec3 _pos = glm::vec3(0, 0, 0), float _angle_x = 0, 
 }
 
 
-Drawable::Drawable(const std::string& model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale){
+Drawable::Drawable(const std::string& model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole=true){
     this->scale = _scale;
-    model = Model(model_filename);
+    model = Model(model_filename, whole);
     if (show_textures) model.readTextures(texture_filenames);
 }
 
@@ -32,8 +32,9 @@ int Worm::count_worms = 1;
 
 Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _model_filename) :
   Movable(),
-  Drawable(_model_filename, {"textures/skin.png", "textures/skin.png", "textures/empty_normal.png"}, glm::vec3(0.5f,0.5f,0.5f)),
-  // Drawable(_model_filename, {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"},  glm::vec3(0.2f,0.20f,0.2f)),
+  // Drawable(_model_filename, {"textures/skin.png", "textures/skin.png", "textures/empty_normal.png"},
+  Drawable(_model_filename, {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"},
+  glm::vec3(0.5f,0.5f,0.5f), false),
   Everything(){
     this->name = name;
     this->life = 100;

@@ -3,8 +3,9 @@
 using std::endl;
 using std::cout;
 
-Model::Model(const std::string& obj_filename){
+Model::Model(const std::string& obj_filename, bool _whole=true){
   load(obj_filename);
+  this->whole = _whole;
 }
 
 void Model::load(const std::string& filename){
@@ -36,8 +37,12 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
   M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Compute model matrix
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
 
-  for (auto i = meshes.begin(); i!=meshes.end(); ++i){
-    i->draw(window, V, P, M, this->textures);
+  for (int i=0; i<meshes.size(); i++){
+  // for (auto i = meshes.begin(); i!=meshes.end(); ++i){
+    if (this->whole)
+      meshes[i].draw(window, V, P, M, this->textures);
+    else
+      meshes[i].draw_part(window, V, P, M, this->textures[i]);
   }
 }
 
@@ -225,15 +230,6 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	glEnableVertexAttribArray(sp->a("normal"));
   glVertexAttribPointer(sp->a("normal"),4,GL_FLOAT,false,0, norms.data());
 
-  // glEnableVertexAttribArray(sp->a("c1"));
-  // glVertexAttribPointer(sp->a("c1"),4,GL_FLOAT,false,0, invTBNx.data());
-  //
-  // glEnableVertexAttribArray(sp->a("c2"));
-  // glVertexAttribPointer(sp->a("c2"),4,GL_FLOAT,false,0, invTBNy.data());
-  //
-  // glEnableVertexAttribArray(sp->a("c3"));
-  // glVertexAttribPointer(sp->a("c3"),4,GL_FLOAT,false,0, invTBNz.data());
-
   glEnableVertexAttribArray(sp->a("tangent"));
   glVertexAttribPointer(sp->a("tangent"),4,GL_FLOAT,false,0, tangents.data());
 
@@ -255,9 +251,40 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
 	glDisableVertexAttribArray(sp->a("texCoord"));
 	glDisableVertexAttribArray(sp->a("normal"));
   glDisableVertexAttribArray(sp->a("tangent"));
-  // glDisableVertexAttribArray(sp->a("c1"));
-  // glDisableVertexAttribArray(sp->a("c2"));
-  // glDisableVertexAttribArray(sp->a("c3"));
+  glDisableVertexAttribArray(sp->a("texMapColor"));
+  glDisableVertexAttribArray(sp->a("texMapReflect"));
+  glDisableVertexAttribArray(sp->a("texMapNormal"));
+}
+
+void Mesh::draw_part(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, GLuint texture){
+  sp_simpler->use();  //activate shading program
+
+	//Send parameters to graphics card
+  glUniformMatrix4fv(sp_simpler->u("P"),1,false,glm::value_ptr(P));
+  glUniformMatrix4fv(sp_simpler->u("V"),1,false,glm::value_ptr(V));
+  glUniformMatrix4fv(sp_simpler->u("M"),1,false,glm::value_ptr(M));
+  // glUniformMatrix4fv(sp_simpler->u("light_position"), )
+
+	glEnableVertexAttribArray(sp_simpler->a("vertex")); //Enable sending data to the attribute vertex
+  glVertexAttribPointer(sp_simpler->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex
+
+	glEnableVertexAttribArray(sp_simpler->a("texCoord"));
+  glVertexAttribPointer(sp_simpler->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
+
+	glEnableVertexAttribArray(sp_simpler->a("normal"));
+  glVertexAttribPointer(sp_simpler->a("normal"),4,GL_FLOAT,false,0, norms.data());
+
+  glUniform1i(sp->u("tex"), 0); // powiązanie zmiennej z jednostką teksturującą
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, indices.data()); //Draw the object
+
+  glDisableVertexAttribArray(sp->a("vertex")); //Disable sending data to the attribute vertex
+	glDisableVertexAttribArray(sp->a("texCoord"));
+	glDisableVertexAttribArray(sp->a("normal"));
+  glDisableVertexAttribArray(sp->a("tex"));
+
 }
 
 /////////////////////////////////////////////////////////////////////

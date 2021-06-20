@@ -205,6 +205,12 @@ void draw_explosion(GLFWwindow* window) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwSwapBuffers(window);
     }
+    for (int i = 0; i < 5; i++) {
+        cl -= glm::vec4(0.1, 0.1, 0.1, 0);
+        glClearColor(cl[0], cl[1], cl[2], cl[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwSwapBuffers(window);
+    }
     glClearColor(0.2, 0.2, 0.9, 1);
     //drawSceneShooting(window, &camera, objects, &bullet);
 

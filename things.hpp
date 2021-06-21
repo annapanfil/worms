@@ -4,6 +4,18 @@
 #include <vector>
 #include "model.hpp"
 
+class GameOverException : public std::exception {
+std::string dead_worm_name;
+public:
+    GameOverException(std::string name) {
+      dead_worm_name = name;
+    }
+    std::string what(){
+      return dead_worm_name;
+    }
+};
+
+
 class Everything {
 private:
 	glm::vec3 pos;

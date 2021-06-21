@@ -3,7 +3,7 @@
 #include "things.hpp"
 
 const glm::vec3 CAMERA_DEFAULT_POS = glm::vec3(2, 10, -15);
-const int R = 2;  //odległość trafienia robaka pociskiem
+const int R = 2;  //odległość materializowania się pocisku
 bool show_textures = 1;
 
 ////////////////////////////////////////////////////////////////////
@@ -79,6 +79,9 @@ void Worm::update(float speed, float angle_speed, double _time) {
 
 void Worm::damage(int how_much) {
     life -= how_much;
+    if (life <= 0)
+      throw GameOverException(name);
+    std::cout<< name <<" "<< life<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -95,22 +98,31 @@ void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float time) {
     this->speed = speed + (gravity + _wind) * glm::vec3(time, time, time);
 }
 
-void Bullet::check_collision(Board* _board, std::vector<Worm*> _worms) {
-    glm::vec3 _pos = get_position();
+void Bullet::check_collision(Board* board, std::vector<Worm*> worms) {
+    glm::vec3 pos = get_position();
     try {
-        if (_pos.y <= _board->get_height(_pos.x, _pos.z)) {
-            this->speed = glm::vec3(0, 0, 0);
-            //wyświetl eksplozję
+        // collisions with the board
+        if (pos.y <= board->get_height(pos.x, pos.z)) {
+            this->speed = glm::vec3(0, 0, 0); // stop
+            // TODO: wyświetl eksplozję
+
+            //check if the worms were hurt
+            for (int i = 0; i < 2; i++) {
+                float dist = glm::distance(pos, worms[i]->get_position());
+                if (dist < 5) // how far can it be hurt
+                    worms[i]->damage(1 / dist * 50);
+            }
         }
     }
     catch (std::out_of_range) {
         this->speed = speed * (-1.0f);
     }
+    // hit the worm
     for (int i = 0; i < 2; i++) {
-        float dist = glm::distance(_pos, _worms[i]->get_position());
+        float dist = glm::distance(pos, worms[i]->get_position());
         if (dist < R) {
-            _worms[i]->damage(1 / dist * 15);
-            //eksplozja
+            worms[i]->damage(1 / dist * 50);
+            //TODO: eksplozja
             this->speed = glm::vec3(0, 0, 0);
         }
     }

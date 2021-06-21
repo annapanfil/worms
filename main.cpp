@@ -10,9 +10,11 @@
     - wiatr
     - celownik
     - życie  + (kiedy życie się skończy zakończ grę)
+    - informacja o końcu gry
 - przeszkody
 - oświetlenie
 - draw_explosion()
+- różne kolory robaków
 */
 
 
@@ -339,7 +341,12 @@ int main(void)
         }
     }
     catch (CloseWindowException) {
-        cout << "Goodbye!\n";
+      cout << "Goodbye!\n";
+    }
+    catch (GameOverException e) {
+      cout << endl<< e.what() << " is dead. Game over.\n";
+      //TODO: info on the screen
+      cout << "Goodbye!\n";
     }
     freeOpenGLProgram(window);
 

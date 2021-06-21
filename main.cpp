@@ -13,7 +13,6 @@
 - przeszkody
 - oświetlenie
 - draw_explosion()
-- ustawienie kamery podczas strzału zależne od pozycji robaka
 */
 
 
@@ -120,8 +119,6 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 
 void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
-  // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
 
     glm::vec3 observer = camera->get_position();
     glm::vec3 center = active_worm->get_position() + glm::vec3(0, 3, 0); 	//active_worm
@@ -160,19 +157,22 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
 }
 
 
-void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Bullet* bullet) {
+void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Bullet* bullet, Worm* worm) {
+    /* camera is following the bullet */
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
-  // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
 
-    glm::vec3 observer = glm::vec3(-15, 3, -5);    //camera position
+    glm::mat4 worm_M = worm->calc_M_matrix();
+    glm::vec3 cam_pos = glm::vec4(worm->get_position(),0) + worm_M * glm::vec4(30, 10, 35, 0); // camera position with respect to worm
+
+    glm::vec3 observer = glm::vec3(cam_pos.x, cam_pos.y, cam_pos.z);
     glm::vec3 center = bullet->get_position(); 	//follow bullet
-
     camera->nose_vector = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    //liczy macierz widoku uwzgędniając kąty
-    glm::mat4 V = glm::lookAt(observer, center, camera->nose_vector); //Wylicz macierz widoku
+    //calculate view matrix, including angles
+    glm::mat4 V = glm::lookAt(observer, center, camera->nose_vector);
 
+    // draw objects
     for (int i = 0; i < objects.size(); i++) {
         objects[i]->draw(window, V);
     }
@@ -324,7 +324,7 @@ int main(void)
                     camera.set_angle_x(camera_angle_speed_x * glfwGetTime());
                     camera.set_angle_y(camera_angle_speed_y * glfwGetTime());
 
-                    drawSceneShooting(window, &camera, objects, &bullet);
+                    drawSceneShooting(window, &camera, objects, &bullet, active_worm);
 
                     glfwPollEvents();
                     if (glfwWindowShouldClose(window)) {
@@ -332,7 +332,7 @@ int main(void)
                     }
                 }
 
-                drawSceneExplosion();
+                // drawSceneExplosion();
                 draw_explosion(window);
 
             }

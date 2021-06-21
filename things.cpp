@@ -14,6 +14,7 @@ Everything::Everything(glm::vec3 _pos = glm::vec3(0, 0, 0), float _angle_x = 0, 
     this->pos = _pos;
 }
 
+//////////////////////////////////////////////////
 
 Drawable::Drawable(const std::string& model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole=true){
     this->scale = _scale;
@@ -24,6 +25,15 @@ Drawable::Drawable(const std::string& model_filename, std::vector<const char*> t
 
 void Drawable::draw(GLFWwindow* window, glm::mat4 V) {
     model.draw(window, get_angle_x(), get_angle_y(), get_position(), V, scale);
+}
+
+glm::mat4 Drawable::calc_M_matrix(){
+  glm::mat4 M=glm::mat4(1.0f);
+  M=glm::translate(M, get_position());
+  M=glm::scale(M, scale);
+  M=glm::rotate(M, get_angle_y(), glm::vec3(1.0f,0.0f,0.0f));
+  M=glm::rotate(M, get_angle_x(), glm::vec3(0.0f,1.0f,0.0f));
+  return M;
 }
 
 ////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@ private:
 public:
 	Drawable(const std::string& _model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole);
 	void draw(GLFWwindow* window, glm::mat4 V); // , glm::vec3 scale);
+	glm::mat4 calc_M_matrix();
 };
 
 

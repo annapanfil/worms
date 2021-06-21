@@ -9,12 +9,12 @@
 - nakładki 2D:
     - wiatr
     - celownik
-    - życie  + (kiedy życie się skończy zakończ grę)
+    - czas do końca tury
+    - życie
     - informacja o końcu gry
 - przeszkody
 - oświetlenie
 - draw_explosion()
-- różne kolory robaków
 */
 
 
@@ -256,8 +256,8 @@ int main(void)
 
     Board board = Board(table_obj, table_textures);
     Camera camera;
-    Worm worm1 = Worm("Napoleon", &board, &camera, worm_obj, worm_textures);
-    Worm worm2 = Worm("Che Guevara", &board, &camera, worm_obj, worm_textures);
+    Worm worm1 = Worm("Napoleon", &board, &camera, worm_obj, worm_blue_textures);
+    Worm worm2 = Worm("Che Guevara", &board, &camera, worm_obj, worm_red_textures);
     Bullet bullet = Bullet(bullet_obj, bullet_textures);
     Drawable obstacle_orange = Drawable(bullet_obj, bullet_textures, glm::vec3(0.2f,0.2f,0.2f), true);
 

@@ -18,5 +18,6 @@ std::string table_obj = "objects/table.obj";
 
 // textures filenames
 std::vector<const char*> bullet_textures = {"textures/orange.png", "textures/orange.png", "textures/orange_normal.png"};
-std::vector<const char*> worm_textures = {"textures/skin.png", "textures/fabric.png", "textures/fabric.png", "textures/metal.png"};
+std::vector<const char*> worm_blue_textures = {"textures/skin.png", "textures/fabric_blue.png", "textures/fabric_blue.png", "textures/metal.png"};
+std::vector<const char*> worm_red_textures = {"textures/skin.png", "textures/fabric_blue.png", "textures/fabric_red.png", "textures/metal.png"};
 std::vector<const char*> table_textures = {"textures/table.png", "textures/table_reflect.png", "textures/table_normal.png"};

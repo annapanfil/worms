@@ -6,7 +6,7 @@ uniform sampler2D texMapNormal;
 
 out vec4 pixelColor; //Output variable. Almost final pixel color
 
-in vec4 l;
+in vec4 l[2];
 in vec4 v;
 in vec2 i_texc;
 
@@ -24,15 +24,17 @@ vec4 calc_light(vec4 light_position, vec4 normal, vec4 vertex, vec4 surface_colo
 
 
 void main(void) {
-	// float brighteness = 1.5;
+	float brighteness = 1; //TODO: remove
 	vec4 mn = normalize(vec4(texture(texMapNormal, i_texc).rgb*2-1, 0)); //pobranie wektorów normalnych tekstury i znormalizowanie ich do przedziału [-1,1]
 	vec4 mv = normalize(v);
 
-	vec4 kd = texture(texMapColor,i_texc); //kolor powierzchni
+	vec4 kd = texture(texMapColor,i_texc)*brighteness; //kolor powierzchni
 	vec4 ks = texture(texMapReflect,i_texc);	//kolor światła odbitego
 
-
-	pixelColor=calc_light(l, mn, mv, kd, ks);
+	pixelColor = vec4(0,0,0,0);
+	for (int i=0; i<2; i++){
+		pixelColor += calc_light(l[i], mn, mv, kd, ks);
+	}
 
 
 

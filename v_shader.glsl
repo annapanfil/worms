@@ -4,8 +4,8 @@
 uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M;
-// uniform vec4 light_position = vec4(20,30,-35,0); //in world space
-uniform vec4 light_position = vec4(0,50,0,0);
+uniform vec4 light_position1 = vec4(20,50,-35,0); //in world space
+uniform vec4 light_position2 = vec4(-20,50,35,0);
 
 
 //Attributes
@@ -19,7 +19,7 @@ in vec4 tangent; // in model space
 //Zmienne interpolowane
 // out vec4 i_color; // interpolowany kolor
 // out vec4 n;     // wektor normalny powierzchi w przestrzeni oka
-out vec4 l;    // znormalizowany wektor do źródła światła w przestrzeni oka
+out vec4 l[2];    // znormalizowany wektor do źródła światła w przestrzeni oka
 out vec4 v;
 out vec2 i_texc;  // współrzędne teksturowania
 
@@ -63,7 +63,8 @@ void main(void) {
     mat4 TBN = mat4(norm_tangent, norm_bitangent, norm_n, vec4(0,0,0,1));
     mat4 invTBN = inverse(TBN);
 
-    l = normalize(invTBN*inverse(M)*light_position - invTBN*vertex);
+    l[0] = normalize(invTBN*inverse(M)*light_position1 - invTBN*vertex);
+    l[1] = normalize(invTBN*inverse(M)*light_position2 - invTBN*vertex);
     v = normalize(invTBN*inverse(V*M)*vec4(0,0,0,1) - invTBN*vertex); //od powierzchni do obserwatora
 
     i_texc=texCoord;

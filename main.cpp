@@ -27,6 +27,8 @@ float camera_angle_speed_y = 0;
 const float ANGLE_SPEED = PI / 2;
 const float SPEED = 5;
 
+GLuint font_tex;
+
 bool walking = true;
 
 
@@ -53,14 +55,14 @@ void introscreen() {
     // sprintf_s(buf, ":::::::::::::::");
     // renderbitmap(-80, 35, glutBitmapTimesRoman24, buf);
 }*/
-
+/*
 void renderbitmapstr(float x, float y, void* font, std::string str) {
-    glRasterPos2f(x, y);
+    // glRasterPos2f(x, y);
     int i=0;
-   // for (int i=0; i<str.length(); i++) {
+   for (int i=0; i<str.length(); i++) {
         glutBitmapCharacter(font, str[i]);
         std::cout<<str[i]<<std::endl;
-    // }
+    }
 }
 
 void introscreenstr() {
@@ -70,7 +72,7 @@ void introscreenstr() {
     // buf = ":::::::::::::::";
     // renderbitmapstr(-80, 35, GLUT_BITMAP_HELVETICA_18, buf);
 }
-
+*/
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
@@ -114,18 +116,42 @@ void stop_movement() {
     camera_angle_speed_y = 0;
 }
 
+GLuint readTexture(const char* filename){
+  GLuint tex;
+
+  glActiveTexture(GL_TEXTURE5); //żeby nie było nadpisywane przez modele
+
+  //Read the file into computers memory
+  std::vector<unsigned char> image;   //Allocate a vector for storing the image
+  unsigned width, height;   //Variables which will contain the image size
+
+  //Read the image
+  unsigned error = lodepng::decode(image, width, height, filename);
+
+  //Import the image into graphics cards memory
+  glGenTextures(1,&tex); //Initialize one handle
+  glBindTexture(GL_TEXTURE_2D, tex); //Activate handle (bind it to the active texturing unit)
+  //Import the image into the GC memory associated with the handle
+  glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
+    GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  return tex;
+}
+
 void initOpenGLProgram(GLFWwindow* window) {
     glClearColor(0.2, 0.2, 0.9, 1);
     glEnable(GL_DEPTH_TEST);
     glfwSetKeyCallback(window, keyCallback);
     initShaders();
+    font_tex = readTexture("textures\font.bmp");
 }
 
 void freeOpenGLProgram(GLFWwindow* window) {
     freeShaders();
 }
-
-
 
 glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
     glm::vec4 dir = glm::vec4(0, 0, 1, 0);
@@ -134,6 +160,71 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
     dir = M * dir;
     return glm::vec3(dir);
 }  //podajemy kąty
+
+
+void prepareTextSquares(std::string text, std::vector<glm::vec2> vertices,
+  std::vector<glm::vec2> UVs, int x=0, int y=0, int size = 16){
+  // create flat square object to texture with text
+  for (int i=0 ; i<text.length() ; i++){
+    // vertices
+    glm::vec2 vertex_up_left    = glm::vec2( x+i*size     , y+size );
+    glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size );
+    glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y      );
+    glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y      );
+
+    vertices.push_back(vertex_up_left   );
+    vertices.push_back(vertex_down_left );
+    vertices.push_back(vertex_up_right  );
+
+    vertices.push_back(vertex_down_right);
+    vertices.push_back(vertex_up_right);
+    vertices.push_back(vertex_down_left);
+
+    // UVs
+    char character = text[i];
+    float uv_x = (character%16)/16.0f;
+    float uv_y = (character/16)/16.0f;
+
+    glm::vec2 uv_up_left    = glm::vec2( uv_x           , 1.0f - uv_y );
+    glm::vec2 uv_up_right   = glm::vec2( uv_x+1.0f/16.0f, 1.0f - uv_y );
+    glm::vec2 uv_down_right = glm::vec2( uv_x+1.0f/16.0f, 1.0f - (uv_y + 1.0f/16.0f) );
+    glm::vec2 uv_down_left  = glm::vec2( uv_x           , 1.0f - (uv_y + 1.0f/16.0f) );
+
+    UVs.push_back(uv_up_left   );
+    UVs.push_back(uv_down_left );
+    UVs.push_back(uv_up_right  );
+
+    UVs.push_back(uv_down_right);
+    UVs.push_back(uv_up_right);
+    UVs.push_back(uv_down_left);
+  }
+}
+
+void drawText(std::string text){
+  std::vector<glm::vec2> vertices;
+  std::vector<glm::vec2> texCoords;
+  prepareTextSquares(text, vertices, texCoords);
+
+  sp_text->use();
+
+  glEnableVertexAttribArray(sp->a("vertex"));
+  glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, vertices.data());
+
+  glEnableVertexAttribArray(sp->a("texCoord"));
+  glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
+
+  glUniform1i(sp->u("font_tex"), 5);
+  glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, font_tex);
+
+  glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+  glDisableVertexAttribArray(sp->a("vertex"));
+	glDisableVertexAttribArray(sp->a("texCoord"));
+	glDisableVertexAttribArray(sp->a("font_tex"));
+  std::cout<<"Wypisałem tekst"<<std::endl;
+}
+
 
 void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -149,7 +240,8 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
     for (int i = 0; i < objects.size(); i++) {
         objects[i]->draw(window, V);
     }
-    introscreenstr();
+    // introscreenstr();
+    drawText("Worm 1 life");
     glfwSwapBuffers(window);
 }
 

@@ -17,10 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ShaderProgram* sp;
 ShaderProgram* sp_simpler;
+ShaderProgram* sp_text;
 
 void initShaders() {
 	sp = new ShaderProgram("v_shader.glsl", NULL, "f_shader.glsl");
 	sp_simpler = new ShaderProgram("v_simplest.glsl", NULL, "f_simplest.glsl");
+	sp_text = new ShaderProgram("v_text.glsl", NULL, "f_text.glsl");
 }
 
 void freeShaders() {

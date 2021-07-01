@@ -5,5 +5,6 @@ out vec4 color;
 in vec2 UV;
 
 void main(){
-    color = texture( font_tex, UV );
+    // color = texture( font_tex, UV );
+		color = vec4(1,1,1,1);
 }

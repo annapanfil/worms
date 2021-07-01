@@ -119,7 +119,7 @@ void stop_movement() {
 GLuint readTexture(const char* filename){
   GLuint tex;
 
-  glActiveTexture(GL_TEXTURE5); //żeby nie było nadpisywane przez modele
+  glActiveTexture(GL_TEXTURE0);
 
   //Read the file into computers memory
   std::vector<unsigned char> image;   //Allocate a vector for storing the image
@@ -138,6 +138,7 @@ GLuint readTexture(const char* filename){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+  std::cout<<"Texture "<<filename<<" read.\n";
   return tex;
 }
 
@@ -146,7 +147,7 @@ void initOpenGLProgram(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
     glfwSetKeyCallback(window, keyCallback);
     initShaders();
-    font_tex = readTexture("textures\font.bmp");
+    font_tex = readTexture("textures/font.bmp");
 }
 
 void freeOpenGLProgram(GLFWwindow* window) {
@@ -162,48 +163,48 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 }  //podajemy kąty
 
 
-void prepareTextSquares(std::string text, std::vector<glm::vec2> vertices,
-  std::vector<glm::vec2> UVs, int x=0, int y=0, int size = 16){
-  // create flat square object to texture with text
-  for (int i=0 ; i<text.length() ; i++){
-    // vertices
-    glm::vec2 vertex_up_left    = glm::vec2( x+i*size     , y+size );
-    glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size );
-    glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y      );
-    glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y      );
+void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
+  std::vector<glm::vec2>* UVs, int x=100, int y=100, int size = 16){
+    // create flat square object to texture with text
+    for (int i=0 ; i<text.length() ; i++){
+      // vertices
+      glm::vec2 vertex_up_left    = glm::vec2( x+i*size     , y+size );
+      glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size );
+      glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y      );
+      glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y      );
 
-    vertices.push_back(vertex_up_left   );
-    vertices.push_back(vertex_down_left );
-    vertices.push_back(vertex_up_right  );
+      vertices->push_back(vertex_up_left   );
+      vertices->push_back(vertex_down_left );
+      vertices->push_back(vertex_up_right  );
 
-    vertices.push_back(vertex_down_right);
-    vertices.push_back(vertex_up_right);
-    vertices.push_back(vertex_down_left);
+      vertices->push_back(vertex_down_right);
+      vertices->push_back(vertex_up_right);
+      vertices->push_back(vertex_down_left);
 
-    // UVs
-    char character = text[i];
-    float uv_x = (character%16)/16.0f;
-    float uv_y = (character/16)/16.0f;
+      // UVs
+      char character = text[i];
+      float uv_x = (character%16)/16.0f;
+      float uv_y = (character/16)/16.0f;
 
-    glm::vec2 uv_up_left    = glm::vec2( uv_x           , 1.0f - uv_y );
-    glm::vec2 uv_up_right   = glm::vec2( uv_x+1.0f/16.0f, 1.0f - uv_y );
-    glm::vec2 uv_down_right = glm::vec2( uv_x+1.0f/16.0f, 1.0f - (uv_y + 1.0f/16.0f) );
-    glm::vec2 uv_down_left  = glm::vec2( uv_x           , 1.0f - (uv_y + 1.0f/16.0f) );
+      glm::vec2 uv_up_left    = glm::vec2( uv_x           , 1.0f - uv_y );
+      glm::vec2 uv_up_right   = glm::vec2( uv_x+1.0f/16.0f, 1.0f - uv_y );
+      glm::vec2 uv_down_right = glm::vec2( uv_x+1.0f/16.0f, 1.0f - (uv_y + 1.0f/16.0f) );
+      glm::vec2 uv_down_left  = glm::vec2( uv_x           , 1.0f - (uv_y + 1.0f/16.0f) );
 
-    UVs.push_back(uv_up_left   );
-    UVs.push_back(uv_down_left );
-    UVs.push_back(uv_up_right  );
+      UVs->push_back(uv_up_left   );
+      UVs->push_back(uv_down_left );
+      UVs->push_back(uv_up_right  );
 
-    UVs.push_back(uv_down_right);
-    UVs.push_back(uv_up_right);
-    UVs.push_back(uv_down_left);
-  }
+      UVs->push_back(uv_down_right);
+      UVs->push_back(uv_up_right);
+      UVs->push_back(uv_down_left);
+    }
 }
 
 void drawText(std::string text){
   std::vector<glm::vec2> vertices;
   std::vector<glm::vec2> texCoords;
-  prepareTextSquares(text, vertices, texCoords);
+  prepareTextSquares(text, &vertices, &texCoords);
 
   sp_text->use();
 
@@ -213,8 +214,8 @@ void drawText(std::string text){
   glEnableVertexAttribArray(sp->a("texCoord"));
   glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
-  glUniform1i(sp->u("font_tex"), 5);
-  glActiveTexture(GL_TEXTURE5);
+  glUniform1i(sp->u("font_tex"), 0);
+  glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, font_tex);
 
   glDrawArrays(GL_TRIANGLES, 0, vertices.size());
@@ -222,7 +223,7 @@ void drawText(std::string text){
   glDisableVertexAttribArray(sp->a("vertex"));
 	glDisableVertexAttribArray(sp->a("texCoord"));
 	glDisableVertexAttribArray(sp->a("font_tex"));
-  std::cout<<"Wypisałem tekst"<<std::endl;
+  std::cout<<"Wypisałem tekst o długości "<< vertices.size()<<" i początku w "<<vertices[0].x<<" "<<vertices[0].y<<std::endl;
 }
 
 
@@ -241,7 +242,6 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
         objects[i]->draw(window, V);
     }
     // introscreenstr();
-    drawText("Worm 1 life");
     glfwSwapBuffers(window);
 }
 
@@ -263,7 +263,7 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
             objects[i]->draw(window, V);
         }
     }
-
+    drawText("Worm 1 life");
     glfwSwapBuffers(window);
 }
 
@@ -362,7 +362,7 @@ int main(int argc, char** argv)
 {
     srand(time(NULL));
     GLFWwindow* window = create_window();
-    glutInit(&argc, argv);
+    // glutInit(&argc, argv);
 
     Board board = Board(table_obj, table_textures);
     Camera camera;

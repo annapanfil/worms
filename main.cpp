@@ -2,7 +2,8 @@
 //dodaj do includes.h
 //#include <iostream>
 //#include <fstream>
-//#include <glut.h>
+#include <GL/glut.h> // u Ani
+// #include <glut.h> // u Doroty
 
 
 /*TODO:
@@ -12,9 +13,6 @@
     - czas do końca tury
     - życie
     - informacja o końcu gry
-- przeszkody
-- oświetlenie
-- draw_explosion()
 */
 
 
@@ -26,8 +24,8 @@ float angle_speed = 0;
 float camera_angle_speed_x = 0;
 float camera_angle_speed_y = 0;
 
-const float ANGLE_SPEED = PI / 4;
-const float SPEED = 3;
+const float ANGLE_SPEED = PI / 2;
+const float SPEED = 5;
 
 bool walking = true;
 
@@ -39,21 +37,39 @@ public:
 /*
 void renderbitmap(float x, float y, void* font, char* string) {
     char* c;
-    glrasterpos2f(x, y);
+    glRasterPos2f(x, y);
     for (c = string; *c != '\0'; c++) {
-        glutbitmapcharacter(font, *c);
+        glutBitmapCharacter(font, *c);
+        printf("%c", *c);
     }
+    // glutBitmapString(c);
 }
 
 void introscreen() {
-    glcolor3f(1.f, 1.f, 1.f);
-    char buf[100] = { 0 };
-    sprintf_s(buf, "worm 1 life:");
-    renderbitmap(-80, 40, glut_bitmap_times_new_roman_24, buf);
-    sprintf_s(buf, ":::::::::::::::");
-    renderbitmap(-80, 35, glut_bitmap_times_new_roman_24, buf);
-} */
+    glColor3f(1.f, 1.f, 1.f);
+    char buf[100] = {0};
+    // sprintf_s(buf, "worm 1 life:" ); //sprintf_s
+    renderbitmap(-80, 40, GLUT_BITMAP_HELVETICA_18, buf); //stroke vs bitmap https://stackoverflow.com/questions/8029212/freegluts-glutstrokestring-giving-a-stroke-font-not-found-error
+    // sprintf_s(buf, ":::::::::::::::");
+    // renderbitmap(-80, 35, glutBitmapTimesRoman24, buf);
+}*/
 
+void renderbitmapstr(float x, float y, void* font, std::string str) {
+    glRasterPos2f(x, y);
+    int i=0;
+   // for (int i=0; i<str.length(); i++) {
+        glutBitmapCharacter(font, str[i]);
+        std::cout<<str[i]<<std::endl;
+    // }
+}
+
+void introscreenstr() {
+    glColor3f(1.f, 1.f, 1.f);
+    std::string buf = "worm 1 life";
+    renderbitmapstr(0, 0, GLUT_BITMAP_HELVETICA_18, buf);
+    // buf = ":::::::::::::::";
+    // renderbitmapstr(-80, 35, GLUT_BITMAP_HELVETICA_18, buf);
+}
 
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
@@ -129,10 +145,11 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
       //liczy macierz widoku uwzgędniając kąty
     glm::mat4 V = glm::lookAt(observer, center, nose_vector);  //Wylicz macierz widoku
 
+
     for (int i = 0; i < objects.size(); i++) {
         objects[i]->draw(window, V);
     }
-
+    introscreenstr();
     glfwSwapBuffers(window);
 }
 
@@ -249,10 +266,11 @@ GLFWwindow* create_window() {
 }
 
 
-int main(void)
+int main(int argc, char** argv)
 {
     srand(time(NULL));
     GLFWwindow* window = create_window();
+    glutInit(&argc, argv);
 
     Board board = Board(table_obj, table_textures);
     Camera camera;

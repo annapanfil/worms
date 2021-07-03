@@ -147,7 +147,7 @@ void initOpenGLProgram(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
     glfwSetKeyCallback(window, keyCallback);
     initShaders();
-    font_tex = readTexture("textures/font.bmp");
+    font_tex = readTexture("textures/font.png");
 }
 
 void freeOpenGLProgram(GLFWwindow* window) {
@@ -209,7 +209,7 @@ void drawText(std::string text){
   sp_text->use();
 
   glEnableVertexAttribArray(sp->a("vertex"));
-  glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, vertices.data());
+  glVertexAttribPointer(sp->a("vertex"),2,GL_FLOAT,false,0, vertices.data());
 
   glEnableVertexAttribArray(sp->a("texCoord"));
   glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
@@ -223,7 +223,6 @@ void drawText(std::string text){
   glDisableVertexAttribArray(sp->a("vertex"));
 	glDisableVertexAttribArray(sp->a("texCoord"));
 	glDisableVertexAttribArray(sp->a("font_tex"));
-  std::cout<<"Wypisałem tekst o długości "<< vertices.size()<<" i początku w "<<vertices[0].x<<" "<<vertices[0].y<<std::endl;
 }
 
 
@@ -263,7 +262,7 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
             objects[i]->draw(window, V);
         }
     }
-    drawText("Worm 1 life");
+    drawText("A");
     glfwSwapBuffers(window);
 }
 

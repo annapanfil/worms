@@ -24,7 +24,7 @@ float angle_speed = 0;
 float camera_angle_speed_x = 0;
 float camera_angle_speed_y = 0;
 
-const float ANGLE_SPEED = PI / 2;
+const float ANGLE_SPEED = PI / 3;
 const float SPEED = 5;
 
 GLuint font_tex;
@@ -164,42 +164,49 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 
 
 void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
-  std::vector<glm::vec2>* UVs, int x=100, int y=100, int size = 16){
+  std::vector<glm::vec2>* UVs, int x=100, int y=100, int size = 50){
     // create flat square object to texture with text
+    int pixels = 16;
+    float pixels_f = (float)pixels;
+
     for (int i=0 ; i<text.length() ; i++){
       // vertices
-      glm::vec2 vertex_up_left    = glm::vec2( x+i*size     , y+size );
-      glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size );
-      glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y      );
-      glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y      );
+      glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
+      glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
+      glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
+      glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y);
 
-      vertices->push_back(vertex_up_left   );
-      vertices->push_back(vertex_down_left );
-      vertices->push_back(vertex_up_right  );
+      vertices->push_back(vertex_up_left);
+      vertices->push_back(vertex_down_left);
+      vertices->push_back(vertex_up_right);
 
       vertices->push_back(vertex_down_right);
       vertices->push_back(vertex_up_right);
       vertices->push_back(vertex_down_left);
 
       // UVs
+      // Bug: wygląda na to, że nie uwzględnia w ogóle tych współrzędnych, tylko bierze 0,0 dla każdego wierzchołka
       char character = text[i];
-      float uv_x = (character%16)/16.0f;
-      float uv_y = (character/16)/16.0f;
+      // int character = 5;
+      float uv_x = (character%pixels)/pixels_f;
+      float uv_y = (character/pixels)/pixels_f;
+      std::cout<<character<<" "<<character/1<<" "<<character%pixels<<" "<<character/pixels_f<<" "<<(character%16)/16.0f<<" "<<(character/pixels)/pixels_f<<std::endl;
 
-      glm::vec2 uv_up_left    = glm::vec2( uv_x           , 1.0f - uv_y );
-      glm::vec2 uv_up_right   = glm::vec2( uv_x+1.0f/16.0f, 1.0f - uv_y );
-      glm::vec2 uv_down_right = glm::vec2( uv_x+1.0f/16.0f, 1.0f - (uv_y + 1.0f/16.0f) );
-      glm::vec2 uv_down_left  = glm::vec2( uv_x           , 1.0f - (uv_y + 1.0f/16.0f) );
+      glm::vec2 uv_up_left = glm::vec2(uv_x, 1.0f - uv_y);
+      glm::vec2 uv_up_right = glm::vec2(uv_x+ 1.0f/pixels_f, 1.0f - uv_y);
+      glm::vec2 uv_down_right = glm::vec2(uv_x+ 1.0f/pixels_f, 1.0f - (uv_y + 1.0f/pixels_f));
+      glm::vec2 uv_down_left = glm::vec2(uv_x, 1.0f - (uv_y + 1.0f/pixels_f));
 
-      UVs->push_back(uv_up_left   );
-      UVs->push_back(uv_down_left );
-      UVs->push_back(uv_up_right  );
+      UVs->push_back(uv_up_left);
+      UVs->push_back(uv_down_left);
+      UVs->push_back(uv_up_right);
 
       UVs->push_back(uv_down_right);
       UVs->push_back(uv_up_right);
       UVs->push_back(uv_down_left);
     }
 }
+
 
 void drawText(std::string text){
   std::vector<glm::vec2> vertices;
@@ -208,21 +215,21 @@ void drawText(std::string text){
 
   sp_text->use();
 
-  glEnableVertexAttribArray(sp->a("vertex"));
-  glVertexAttribPointer(sp->a("vertex"),2,GL_FLOAT,false,0, vertices.data());
+  glEnableVertexAttribArray(sp_text->a("vertex"));
+  glVertexAttribPointer(sp_text->a("vertex"),2,GL_FLOAT,false,0, vertices.data());
 
-  glEnableVertexAttribArray(sp->a("texCoord"));
-  glVertexAttribPointer(sp->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
+  glEnableVertexAttribArray(sp_text->a("texCoord"));
+  glVertexAttribPointer(sp_text->a("texCoord"),2,GL_FLOAT,false,0, texCoords.data());
 
-  glUniform1i(sp->u("font_tex"), 0);
+  glUniform1i(sp_text->u("font_tex"), 0);
   glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, font_tex);
 
   glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
-  glDisableVertexAttribArray(sp->a("vertex"));
-	glDisableVertexAttribArray(sp->a("texCoord"));
-	glDisableVertexAttribArray(sp->a("font_tex"));
+  glDisableVertexAttribArray(sp_text->a("vertex"));
+	glDisableVertexAttribArray(sp_text->a("texCoord"));
+	glDisableVertexAttribArray(sp_text->a("font_tex"));
 }
 
 
@@ -262,7 +269,7 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
             objects[i]->draw(window, V);
         }
     }
-    drawText("A");
+    drawText("ABCDab");
     glfwSwapBuffers(window);
 }
 

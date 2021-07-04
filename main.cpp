@@ -2,9 +2,6 @@
 //dodaj do includes.h
 //#include <iostream>
 //#include <fstream>
-#include <GL/glut.h> // u Ani
-// #include <glut.h> // u Doroty
-
 
 /*TODO:
 - nakładki 2D:
@@ -36,43 +33,8 @@ class CloseWindowException : public std::exception {
 public:
     CloseWindowException() {}
 };
-/*
-void renderbitmap(float x, float y, void* font, char* string) {
-    char* c;
-    glRasterPos2f(x, y);
-    for (c = string; *c != '\0'; c++) {
-        glutBitmapCharacter(font, *c);
-        printf("%c", *c);
-    }
-    // glutBitmapString(c);
-}
 
-void introscreen() {
-    glColor3f(1.f, 1.f, 1.f);
-    char buf[100] = {0};
-    // sprintf_s(buf, "worm 1 life:" ); //sprintf_s
-    renderbitmap(-80, 40, GLUT_BITMAP_HELVETICA_18, buf); //stroke vs bitmap https://stackoverflow.com/questions/8029212/freegluts-glutstrokestring-giving-a-stroke-font-not-found-error
-    // sprintf_s(buf, ":::::::::::::::");
-    // renderbitmap(-80, 35, glutBitmapTimesRoman24, buf);
-}*/
-/*
-void renderbitmapstr(float x, float y, void* font, std::string str) {
-    // glRasterPos2f(x, y);
-    int i=0;
-   for (int i=0; i<str.length(); i++) {
-        glutBitmapCharacter(font, str[i]);
-        std::cout<<str[i]<<std::endl;
-    }
-}
 
-void introscreenstr() {
-    glColor3f(1.f, 1.f, 1.f);
-    std::string buf = "worm 1 life";
-    renderbitmapstr(0, 0, GLUT_BITMAP_HELVETICA_18, buf);
-    // buf = ":::::::::::::::";
-    // renderbitmapstr(-80, 35, GLUT_BITMAP_HELVETICA_18, buf);
-}
-*/
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
@@ -164,47 +126,45 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 
 
 void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
-  std::vector<glm::vec2>* UVs, int x=100, int y=100, int size = 50){
-    // create flat square object to texture with text
-    int pixels = 16;
-    float pixels_f = (float)pixels;
+  std::vector<glm::vec2>* UVs, int x=30, int y=570, int size = 30){
+  // create flat square object to texture with text
+  // x, y – text position, size – text size
+  int pixels = 16;
+  float pixels_f = (float)pixels;
 
-    for (int i=0 ; i<text.length() ; i++){
-      // vertices
-      glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
-      glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
-      glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
-      glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y);
+  for (int i=0 ; i<text.length() ; i++){
+    // vertices
+    glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
+    glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
+    glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
+    glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y);
 
-      vertices->push_back(vertex_up_left);
-      vertices->push_back(vertex_down_left);
-      vertices->push_back(vertex_up_right);
+    vertices->push_back(vertex_up_left);
+    vertices->push_back(vertex_down_left);
+    vertices->push_back(vertex_up_right);
 
-      vertices->push_back(vertex_down_right);
-      vertices->push_back(vertex_up_right);
-      vertices->push_back(vertex_down_left);
+    vertices->push_back(vertex_down_right);
+    vertices->push_back(vertex_up_right);
+    vertices->push_back(vertex_down_left);
 
-      // UVs
-      // Bug: wygląda na to, że nie uwzględnia w ogóle tych współrzędnych, tylko bierze 0,0 dla każdego wierzchołka
-      char character = text[i];
-      // int character = 5;
-      float uv_x = (character%pixels)/pixels_f;
-      float uv_y = (character/pixels)/pixels_f;
-      std::cout<<character<<" "<<character/1<<" "<<character%pixels<<" "<<character/pixels_f<<" "<<(character%16)/16.0f<<" "<<(character/pixels)/pixels_f<<std::endl;
+    // UVs
+    char character = text[i];
+    float uv_x = (character%pixels)/pixels_f;
+    float uv_y = (character/pixels)/pixels_f;
 
-      glm::vec2 uv_up_left = glm::vec2(uv_x, 1.0f - uv_y);
-      glm::vec2 uv_up_right = glm::vec2(uv_x+ 1.0f/pixels_f, 1.0f - uv_y);
-      glm::vec2 uv_down_right = glm::vec2(uv_x+ 1.0f/pixels_f, 1.0f - (uv_y + 1.0f/pixels_f));
-      glm::vec2 uv_down_left = glm::vec2(uv_x, 1.0f - (uv_y + 1.0f/pixels_f));
+    glm::vec2 uv_up_left = glm::vec2(uv_x,uv_y);
+    glm::vec2 uv_up_right = glm::vec2(uv_x+ 1.0f/pixels_f, uv_y);
+    glm::vec2 uv_down_right = glm::vec2(uv_x+ 1.0f/pixels_f,uv_y + 1.0f/pixels_f);
+    glm::vec2 uv_down_left = glm::vec2(uv_x, uv_y + 1.0f/pixels_f);
 
-      UVs->push_back(uv_up_left);
-      UVs->push_back(uv_down_left);
-      UVs->push_back(uv_up_right);
+    UVs->push_back(uv_up_left);
+    UVs->push_back(uv_down_left);
+    UVs->push_back(uv_up_right);
 
-      UVs->push_back(uv_down_right);
-      UVs->push_back(uv_up_right);
-      UVs->push_back(uv_down_left);
-    }
+    UVs->push_back(uv_down_right);
+    UVs->push_back(uv_up_right);
+    UVs->push_back(uv_down_left);
+  }
 }
 
 
@@ -269,7 +229,7 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
             objects[i]->draw(window, V);
         }
     }
-    drawText("ABCDab");
+    drawText("Worm 1 life: ");
     glfwSwapBuffers(window);
 }
 

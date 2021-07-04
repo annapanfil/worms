@@ -19,7 +19,8 @@ Everything::Everything(glm::vec3 _pos = glm::vec3(0, 0, 0), float _angle_x = 0, 
 Drawable::Drawable(const std::string& model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole=true){
     this->scale = _scale;
     model = Model(model_filename, whole);
-    if (show_textures) model.readTextures(texture_filenames);
+    if (show_textures)
+      model.readTextures(texture_filenames);
 }
 
 

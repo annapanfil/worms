@@ -5,7 +5,7 @@ in vec2 vertex; //Vertex coordinates in model space
 in vec2 texCoord; //texturing coordinates
 
 //Zmienne interpolowane
-out vec2 UV;
+out vec2 uv;
 
 void main(){
     vec2 vertexPosition_screenspace = vertex;
@@ -16,5 +16,5 @@ void main(){
     gl_Position =  vec4(vertexPosition_homoneneousspace,0,1);
 
     // UV of the vertex. No special space for this one.
-    UV = texCoord;
+    uv = texCoord;
 }

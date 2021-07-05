@@ -8,11 +8,11 @@
     - zmniejszyć spacje
     - wiatr:
         - obliczyć wektor względem wzroku robaczka
-        -ewentualnie wskazwać strałakami
+        -ewentualnie wskazwać strzałakami
     - celownik
-    - czas do końca tury
-    - życie
-    - informacja o końcu gry
+    - czas do końca tury DONE
+    - życie              DONE
+    - informacja o końcu gry DONE
 */
 
 
@@ -173,11 +173,12 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
 }
 
 
-void drawText(std::string text, std::string text_second){
+void drawText(std::string text, int x = 30, int y = 470, int size = 30){
   std::vector<glm::vec2> vertices;
   std::vector<glm::vec2> texCoords;
-  prepareTextSquares(text, &vertices, &texCoords, 10, 570, 25);
-  prepareTextSquares(text_second, &vertices, &texCoords, 0, 540, 18);
+  prepareTextSquares(text, &vertices, &texCoords, x, y, size);
+  //prepareTextSquares(text, &vertices, &texCoords, 10, 570, 25);
+  //prepareTextSquares(text_second, &vertices, &texCoords, 0, 540, 18);
   
   sp_text->use();
 
@@ -219,11 +220,10 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
     int win_ = floor(wind[1]);
     int win__ = floor(wind[2]);
     float backwards_timer = roundtime - timer;
-    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__) + " Time: " + std::to_string(backwards_timer);
-
+    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__) + "   Time: " + std::to_string(backwards_timer);
     std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
-    drawText(text_to_view, text_view);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
-    //drawText(text_view);
+    drawText(text_to_view, 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    drawText(text_view, 0, 540, 18);
     glfwSwapBuffers(window);
 }
 
@@ -250,7 +250,8 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
     int win__ = floor(wind[2]);
     std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__);
     std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
-    drawText(text_to_view, text_view); 
+    drawText(text_to_view, 10, 570, 25);  
+    drawText(text_view, 0, 540, 18);
     
     glfwSwapBuffers(window);
 }
@@ -309,6 +310,35 @@ void draw_explosion(GLFWwindow* window) {
     //drawSceneShooting(window, &camera, objects, &bullet);
 
 }
+
+void drawSceneEndOfGame(GLFWwindow* window, std::vector<Worm*> worms) {
+
+    glm::vec4 cl = glm::vec4(0.5, 0.3, 0.3, 1);
+    glClearColor(cl[0], cl[1], cl[2], cl[3]);
+
+    int won;
+
+    for (int i = 0; i < 2; i++) {
+        if (worms[1 - i]->get_life() <= 0) {
+            won = i + 1;
+        }
+    }
+
+    std::string text_to_view = "Game over";
+    std::string text_view = "Worm number " + std::to_string(won) + " won!";
+    for (int i = 0; i < 100; i++) {
+        glClearColor(1, 1, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        drawText(text_to_view, 150, 300, 60);
+        drawText(text_view, 150, 270, 30);
+        glfwSwapBuffers(window);
+    }
+
+
+    glClearColor(0.2, 0.2, 0.9, 1);
+
+}
+
 
 void drawSceneExplosion() {
 }
@@ -448,7 +478,12 @@ int main(int argc, char** argv)
     catch (GameOverException e) {
       cout << endl<< e.what() << " is dead. Game over.\n";
       //TODO: info on the screen
+
+      drawSceneEndOfGame(window, worms);
+     
       cout << "Goodbye!\n";
+      //sleep(60); //Linux
+      Sleep(60); //Windows
     }
     freeOpenGLProgram(window);
 

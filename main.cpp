@@ -5,7 +5,10 @@
 
 /*TODO:
 - nakładki 2D:
-    - wiatr
+    - zmniejszyć spacje
+    - wiatr:
+        - obliczyć wektor względem wzroku robaczka
+        -ewentualnie wskazwać strałakami
     - celownik
     - czas do końca tury
     - życie
@@ -13,9 +16,11 @@
 */
 
 
+
 using std::cout;
 using std::endl;
 
+int roundtime = 5;
 float speed = 0;
 float angle_speed = 0;
 float camera_angle_speed_x = 0;
@@ -126,7 +131,7 @@ glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
 
 
 void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
-  std::vector<glm::vec2>* UVs, int x=30, int y=570, int size = 30){
+  std::vector<glm::vec2>* UVs, int x=30, int y=470, int size = 30){
   // create flat square object to texture with text
   // x, y – text position, size – text size
   int pixels = 16;
@@ -134,7 +139,7 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
 
   for (int i=0 ; i<text.length() ; i++){
     // vertices
-    glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
+    glm::vec2 vertex_up_left    = glm::vec2( x+i*size , y+size);
     glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
     glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
     glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y);
@@ -168,11 +173,12 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
 }
 
 
-void drawText(std::string text){
+void drawText(std::string text, std::string text_second){
   std::vector<glm::vec2> vertices;
   std::vector<glm::vec2> texCoords;
-  prepareTextSquares(text, &vertices, &texCoords);
-
+  prepareTextSquares(text, &vertices, &texCoords, 10, 570, 25);
+  prepareTextSquares(text_second, &vertices, &texCoords, 0, 540, 18);
+  
   sp_text->use();
 
   glEnableVertexAttribArray(sp_text->a("vertex"));
@@ -193,7 +199,7 @@ void drawText(std::string text){
 }
 
 
-void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
+void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm, std::vector<Worm*> worms, glm::vec3 wind, float timer) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::vec3 observer = camera->get_position();
@@ -207,11 +213,21 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
     for (int i = 0; i < objects.size(); i++) {
         objects[i]->draw(window, V);
     }
-    // introscreenstr();
+    //std::string text_to_view = "Wind: " + std::to_string(wind[0]) + std::to_string(wind[1]) + std::to_string(wind[2]) + "\n";
+
+    int win = floor(wind[0]);
+    int win_ = floor(wind[1]);
+    int win__ = floor(wind[2]);
+    float backwards_timer = roundtime - timer;
+    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__) + " Time: " + std::to_string(backwards_timer);
+
+    std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
+    drawText(text_to_view, text_view);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    //drawText(text_view);
     glfwSwapBuffers(window);
 }
 
-void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm) {
+void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm, std::vector<Worm*> worms, glm::vec3 wind) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
   // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
@@ -229,7 +245,13 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
             objects[i]->draw(window, V);
         }
     }
-    drawText("Worm 1 life: ");
+    int win = floor(wind[0]);
+    int win_ = floor(wind[1]);
+    int win__ = floor(wind[2]);
+    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__);
+    std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
+    drawText(text_to_view, text_view); 
+    
     glfwSwapBuffers(window);
 }
 
@@ -257,8 +279,8 @@ void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*
 
     glfwSwapBuffers(window);
 
-    sleep(1 / 24); //Linux
-    //Sleep(1 / 24); //Windows
+    //sleep(1 / 24); //Linux
+    Sleep(1 / 24); //Windows
 }
 
 
@@ -352,17 +374,21 @@ int main(int argc, char** argv)
         {
             glm::vec3 wind = glm::vec3((std::rand()%40)/10-2, (std::rand()%20)/10-1, (std::rand()%40)/10-2);
 
+            //std::cout << wind[0]<<std::endl;
+
             for (int i = 0; i < 2; i++) {
                 walking = true;
                 Worm* active_worm = worms[i];
                 clock_t start = clock();
+                float timer;
                 //ruch gracza
-                while (((float)(clock() - start) / CLOCKS_PER_SEC <= 3) && walking == true) {
+                while (((float)(clock() - start) / CLOCKS_PER_SEC <= roundtime) && walking == true) {
                     active_worm->update(speed, angle_speed, glfwGetTime());
 
                     glfwSetTime(0);
 
-                    drawSceneWalking(window, &camera, objects, active_worm);
+                    timer = ((float)(clock() - start) / CLOCKS_PER_SEC);
+                    drawSceneWalking(window, &camera, objects, active_worm, worms, wind, timer);
                     glfwPollEvents();
                     if (glfwWindowShouldClose(window)) {
                         throw CloseWindowException();
@@ -381,7 +407,7 @@ int main(int argc, char** argv)
 
                     glfwSetTime(0);
 
-                    drawSceneAiming(window, &camera, objects, active_worm);
+                    drawSceneAiming(window, &camera, objects, active_worm, worms, wind);
                     glfwPollEvents();
                     if (glfwWindowShouldClose(window)) {
                         throw CloseWindowException();

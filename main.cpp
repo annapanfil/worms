@@ -1,14 +1,11 @@
 #include "includes.hpp"
-//dodaj do includes.h
-//#include <iostream>
-//#include <fstream>
 
 /*TODO:
 - nakładki 2D:
     - zmniejszyć spacje
     - wiatr:
         - obliczyć wektor względem wzroku robaczka
-        -ewentualnie wskazwać strzałakami
+        - ewentualnie wskazwać strzałakami
     - celownik
     - czas do końca tury DONE
     - życie              DONE
@@ -114,11 +111,12 @@ void initOpenGLProgram(GLFWwindow* window) {
     glEnable(GL_DEPTH_TEST);
     glfwSetKeyCallback(window, keyCallback);
     initShaders();
-    font_tex = readTexture("textures/font.png");
+    font_tex = readTexture("textures/consolas.png");
 }
 
 void freeOpenGLProgram(GLFWwindow* window) {
     freeShaders();
+    //zwolnić uchwyt tekstury
 }
 
 glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
@@ -136,13 +134,14 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
   // x, y – text position, size – text size
   int pixels = 16;
   float pixels_f = (float)pixels;
+  float cell_fill = 0.5; //how much space of the cell takes the font letter
 
   for (int i=0 ; i<text.length() ; i++){
     // vertices
-    glm::vec2 vertex_up_left    = glm::vec2( x+i*size , y+size);
+    glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
     glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
     glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
-    glm::vec2 vertex_down_left  = glm::vec2( x+i*size     , y);
+    glm::vec2 vertex_down_left  = glm::vec2( x+i*size, y);
 
     vertices->push_back(vertex_up_left);
     vertices->push_back(vertex_down_left);
@@ -158,8 +157,8 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
     float uv_y = (character/pixels)/pixels_f;
 
     glm::vec2 uv_up_left = glm::vec2(uv_x,uv_y);
-    glm::vec2 uv_up_right = glm::vec2(uv_x+ 1.0f/pixels_f, uv_y);
-    glm::vec2 uv_down_right = glm::vec2(uv_x+ 1.0f/pixels_f,uv_y + 1.0f/pixels_f);
+    glm::vec2 uv_up_right = glm::vec2(uv_x + cell_fill/pixels_f, uv_y);
+    glm::vec2 uv_down_right = glm::vec2(uv_x + cell_fill/pixels_f,uv_y + 1.0f/pixels_f);
     glm::vec2 uv_down_left = glm::vec2(uv_x, uv_y + 1.0f/pixels_f);
 
     UVs->push_back(uv_up_left);
@@ -179,7 +178,7 @@ void drawText(std::string text, int x = 30, int y = 470, int size = 30){
   prepareTextSquares(text, &vertices, &texCoords, x, y, size);
   //prepareTextSquares(text, &vertices, &texCoords, 10, 570, 25);
   //prepareTextSquares(text_second, &vertices, &texCoords, 0, 540, 18);
-  
+
   sp_text->use();
 
   glEnableVertexAttribArray(sp_text->a("vertex"));
@@ -287,8 +286,8 @@ void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*
 
     glfwSwapBuffers(window);
 
-    //sleep(1 / 24); //Linux
-    Sleep(1 / 24); //Windows
+    sleep(1 / 24); //Linux
+    // Sleep(1 / 24); //Windows
 }
 
 
@@ -487,10 +486,10 @@ int main(int argc, char** argv)
       //TODO: info on the screen
 
       drawSceneEndOfGame(window, worms);
-     
+
       cout << "Goodbye!\n";
-      //sleep(60); //Linux
-      Sleep(60); //Windows
+      sleep(60); //Linux
+      // Sleep(60); //Windows
     }
     freeOpenGLProgram(window);
 

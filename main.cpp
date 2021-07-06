@@ -2,45 +2,42 @@
 
 /*TODO:
 - nakładki 2D:
-    - zmniejszyć spacje
     - wiatr:
         - obliczyć wektor względem wzroku robaczka
         - ewentualnie wskazwać strzałakami
     - celownik
-    - czas do końca tury DONE
-    - życie              DONE
-    - informacja o końcu gry DONE
 */
-
 
 
 using std::cout;
 using std::endl;
 
-int roundtime = 15;
-float speed = 0;
-float angle_speed = 0;
-float camera_angle_speed_x = 0;
+const int roundtime = 15;       //time fot walking
+float speed = 0;                // current speed
+float angle_speed = 0;          // current angle speed
+float camera_angle_speed_x = 0; // current camera angle speed
 float camera_angle_speed_y = 0;
 
-const float ANGLE_SPEED = PI / 3;
-const float SPEED = 5;
+const float ANGLE_SPEED = PI / 3; // max angle speed of the camera and worm
+const float SPEED = 5;            // max speed of the worm
 
-GLuint font_tex;
+GLuint font_tex; // handle for a font texture
 
-bool walking = true;
+bool walking = true;  // current worm mode (walking or aiming)
 
 
+// game window to be closed
 class CloseWindowException : public std::exception {
 public:
     CloseWindowException() {}
 };
 
-
+// OpenGL error handling
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
+// arrows for moving or aiming, space for shooting or changing mode
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS) {
         if (walking == true) {
@@ -73,6 +70,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
 }
 
+
+// stop everything before next player movement
 void stop_movement() {
     angle_speed = 0;
     speed = 0;
@@ -80,6 +79,7 @@ void stop_movement() {
     camera_angle_speed_y = 0;
 }
 
+// read texture from png file
 GLuint readTexture(const char* filename){
   GLuint tex;
 
@@ -110,34 +110,37 @@ void initOpenGLProgram(GLFWwindow* window) {
     glClearColor(0.2, 0.2, 0.9, 1);
     glEnable(GL_DEPTH_TEST);
     glfwSetKeyCallback(window, keyCallback);
-    initShaders();
-    font_tex = readTexture("textures/consolas.png");
+    initShaders();     // start shaders for worms, text and other objects
+    font_tex = readTexture("textures/consolas.png"); //load font texture
 }
 
 void freeOpenGLProgram(GLFWwindow* window) {
     freeShaders();
-    //zwolnić uchwyt tekstury
 }
 
-glm::vec3 calcDir(float kat_x, float kat_y) {		//do kamery podczas strzelania
+
+// calc camera direction while shooting
+glm::vec3 calcDir(float angle_x, float angle_y) {
     glm::vec4 dir = glm::vec4(0, 0, 1, 0);
-    glm::mat4 M = glm::rotate(glm::mat4(1.0f), kat_y, glm::vec3(0, 1, 0)); //obrót w pionie
-    M = glm::rotate(M, kat_x, glm::vec3(1, 0, 0));  //obrót w poziomie
+    glm::mat4 M = glm::rotate(glm::mat4(1.0f), angle_y, glm::vec3(0, 1, 0)); //vertical rotation
+    M = glm::rotate(M, angle_x, glm::vec3(1, 0, 0));  //horizontal rotation
     dir = M * dir;
     return glm::vec3(dir);
-}  //podajemy kąty
+}
 
 
+// create flat square object to texture with text
 void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
-  std::vector<glm::vec2>* UVs, int x=30, int y=470, int size = 30){
-  // create flat square object to texture with text
+  std::vector<glm::vec2>* UVs, int x=30, int y=470, int size = 30)
+  {
   // x, y – text position, size – text size
-  int pixels = 16;
-  float pixels_f = (float)pixels;
-  float cell_fill = 0.5; //how much space of the cell takes the font letter
+
+  int pixels = 16;                // pixels of letter square
+  float pixels_f = (float)pixels; // in order not to convert back and forth
+  float cell_fill = 0.5;          // how much space of the cell takes the font letter
 
   for (int i=0 ; i<text.length() ; i++){
-    // vertices
+    // vertices positions
     glm::vec2 vertex_up_left    = glm::vec2( x+i*size, y+size);
     glm::vec2 vertex_up_right   = glm::vec2( x+i*size+size, y+size);
     glm::vec2 vertex_down_right = glm::vec2( x+i*size+size, y);
@@ -151,10 +154,10 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
     vertices->push_back(vertex_up_right);
     vertices->push_back(vertex_down_left);
 
-    // UVs
-    char character = text[i];
-    float uv_x = (character%pixels)/pixels_f;
-    float uv_y = (character/pixels)/pixels_f;
+    // texture conrdinates positions
+    char character = text[i];                   // we need ascii code
+    float uv_x = (character%pixels)/pixels_f;   // column
+    float uv_y = (character/pixels)/pixels_f;   // row
 
     glm::vec2 uv_up_left = glm::vec2(uv_x,uv_y);
     glm::vec2 uv_up_right = glm::vec2(uv_x + cell_fill/pixels_f, uv_y);
@@ -172,15 +175,15 @@ void prepareTextSquares(std::string text, std::vector<glm::vec2>* vertices,
 }
 
 
+// draw text in 2D
 void drawText(std::string text, int x = 30, int y = 470, int size = 30){
   std::vector<glm::vec2> vertices;
   std::vector<glm::vec2> texCoords;
   prepareTextSquares(text, &vertices, &texCoords, x, y, size);
-  //prepareTextSquares(text, &vertices, &texCoords, 10, 570, 25);
-  //prepareTextSquares(text_second, &vertices, &texCoords, 0, 540, 18);
 
-  sp_text->use();
+  sp_text->use(); // special shader
 
+  // pass vertex and texture coordinates and the texture
   glEnableVertexAttribArray(sp_text->a("vertex"));
   glVertexAttribPointer(sp_text->a("vertex"),2,GL_FLOAT,false,0, vertices.data());
 
@@ -198,23 +201,23 @@ void drawText(std::string text, int x = 30, int y = 470, int size = 30){
 	glDisableVertexAttribArray(sp_text->a("font_tex"));
 }
 
-
+// draw scene of walking worm
 void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm, std::vector<Worm*> worms, glm::vec3 wind, float timer) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::vec3 observer = camera->get_position();
-    glm::vec3 center = active_worm->get_position() + glm::vec3(0, 3, 0); 	//active_worm
+    glm::vec3 center = active_worm->get_position() + glm::vec3(0, 3, 0); 	// camera is following active worm
     glm::vec3 nose_vector = glm::vec3(0.0f, 1.0f, 0.0f); //(pionowo prostopadły do osi patrzenia)
 
-      //liczy macierz widoku uwzgędniając kąty
-    glm::mat4 V = glm::lookAt(observer, center, nose_vector);  //Wylicz macierz widoku
+    // Calculate view matrix
+    glm::mat4 V = glm::lookAt(observer, center, nose_vector);
 
-
+    // draw all objects
     for (int i = 0; i < objects.size(); i++) {
         objects[i]->draw(window, V);
     }
-    //std::string text_to_view = "Wind: " + std::to_string(wind[0]) + std::to_string(wind[1]) + std::to_string(wind[2]) + "\n";
 
+    // display text
     int win = floor(wind[0]);
     int win_ = floor(wind[1]);
     int win__ = floor(wind[2]);
@@ -224,30 +227,31 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
     text_view[1] = { " Worm1 (BLUE)life: " + std::to_string(worms[0]->get_life()) };
     text_view[2] = { " Worm2 (RED)life: " + std::to_string(worms[1]->get_life())};
     text_view[3] = { "LIFE:" };
-    drawText(text_view[0], 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    drawText(text_view[0], 10, 570, 25);
     drawText(text_view[1], 10, 525, 18);
     drawText(text_view[2], 10, 546, 18);
     glfwSwapBuffers(window);
 }
 
+// draw aiming scene, center defines the direction of the bullet
 void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Worm* active_worm, std::vector<Worm*> worms, glm::vec3 wind) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
-  // glUniform4f(sp->u("light_position"), 0,0,0,1); // light position
 
     glm::vec3 observer = camera->get_position() + glm::vec3(0, 2, 0);
     glm::vec3 center = camera->get_position() + glm::vec3(0, 2, 0) + calcDir(camera->get_angle_y(), camera->get_angle_x()); 	//active_worm
 
     camera->nose_vector = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    //liczy macierz widoku uwzgędniając kąty
-    glm::mat4 V = glm::lookAt(observer, center, camera->nose_vector); //Wylicz macierz widoku
+    glm::mat4 V = glm::lookAt(observer, center, camera->nose_vector); //calculate view matrix
 
+    // draw all objects
     for (int i = 0; i < objects.size(); i++) {
         if ((Worm*)(objects[i]) != active_worm) {
             objects[i]->draw(window, V);
         }
     }
+
+    // display 2D text
     int win = floor(wind[0]);
     int win_ = floor(wind[1]);
     int win__ = floor(wind[2]);
@@ -256,13 +260,15 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
     text_view[1] = { " Worm1 (BLUE) life:" + std::to_string(worms[0]->get_life()) };
     text_view[2] = { " Worm2 (RED) life:" + std::to_string(worms[1]->get_life()) };
     text_view[3] = { "LIFE:" };
-    drawText(text_view[0], 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    drawText(text_view[0], 10, 570, 25);
     drawText(text_view[1], 10, 525, 18);
     drawText(text_view[2], 10, 546, 18);
+
     glfwSwapBuffers(window);
 }
 
 
+// animation of the bullet
 void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*> objects, Bullet* bullet, Worm* worm) {
     /* camera is following the bullet */
 
@@ -291,8 +297,8 @@ void drawSceneShooting(GLFWwindow* window, Camera* camera, std::vector<Drawable*
 }
 
 
+// brighten the screen
 void draw_explosion(GLFWwindow* window) {
-
     glm::vec4 cl = glm::vec4(0.5, 0.3, 0.3, 1);
     glClearColor(cl[0], cl[1], cl[2], cl[3]);
     for (int i = 0; i < 5; i++) {
@@ -313,12 +319,11 @@ void draw_explosion(GLFWwindow* window) {
         glfwSwapBuffers(window);
     }
     glClearColor(0.2, 0.2, 0.9, 1);
-    //drawSceneShooting(window, &camera, objects, &bullet);
-
 }
 
-void drawSceneEndOfGame(GLFWwindow* window, std::vector<Worm*> worms) {
 
+// the and and the result
+void drawSceneEndOfGame(GLFWwindow* window, std::vector<Worm*> worms) {
     glm::vec4 cl = glm::vec4(0.5, 0.3, 0.3, 1);
     glClearColor(cl[0], cl[1], cl[2], cl[3]);
 
@@ -346,10 +351,7 @@ void drawSceneEndOfGame(GLFWwindow* window, std::vector<Worm*> worms) {
 }
 
 
-void drawSceneExplosion() {
-}
-
-
+// init libraries and create window
 GLFWwindow* create_window() {
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
@@ -359,7 +361,7 @@ GLFWwindow* create_window() {
         exit(EXIT_FAILURE);
     }
 
-    window = glfwCreateWindow(1000, 1000, "OpenGL", NULL, NULL);
+    window = glfwCreateWindow(1000, 1000, "Worms", NULL, NULL);
 
     if (!window) //If no window is opened then close the program
     {
@@ -382,11 +384,13 @@ GLFWwindow* create_window() {
 }
 
 
+
 int main(int argc, char** argv)
 {
     srand(time(NULL));
+
+    //create objects
     GLFWwindow* window = create_window();
-    // glutInit(&argc, argv);
 
     Board board = Board(table_obj, table_textures);
     Camera camera;
@@ -398,26 +402,26 @@ int main(int argc, char** argv)
     obstacle_orange.set_position(glm::vec3(0,2.4f,0));
     camera.update_pos(worm1.get_position(), 0);
 
+    // group objects
     std::vector<Drawable*> objects = {&board, &worm1, &worm2, &obstacle_orange};
     std::vector<Worm*> worms = { &worm1, &worm2 };
 
     float angle_x, angle_y;
 
     glfwSetTime(0); //Zero the timer
-    //Main application loop
+    //Main loop
     try {
         while (!glfwWindowShouldClose(window))
         {
-            glm::vec3 wind = glm::vec3((std::rand()%40)/10-2, (std::rand()%20)/10-1, (std::rand()%40)/10-2);
-
-            //std::cout << wind[0]<<std::endl;
+            glm::vec3 wind = glm::vec3((std::rand()%40)/10-2, (std::rand()%20)/10-1, (std::rand()%40)/10-2); //random direction of the wind
 
             for (int i = 0; i < 2; i++) {
                 walking = true;
                 Worm* active_worm = worms[i];
                 clock_t start = clock();
                 float timer;
-                //ruch gracza
+
+                // player move
                 while (((float)(clock() - start) / CLOCKS_PER_SEC <= roundtime) && walking == true) {
                     active_worm->update(speed, angle_speed, glfwGetTime());
 
@@ -431,13 +435,15 @@ int main(int argc, char** argv)
                     }
                 }
 
-                //namierzanie
+                // aiming
                 walking = false;
                 stop_movement();
                 camera.change_mode(active_worm);
                 while (walking == false) {
                     active_worm->update(0, camera_angle_speed_x, glfwGetTime());
-                    //^obracanie robaczka podczas celowania
+                    //^rotate worm while aiming
+
+                    //move camera
                     camera.set_angle_x(camera.get_angle_x() + camera_angle_speed_x * glfwGetTime());
                     camera.set_angle_y_restricted(camera.get_angle_y() + camera_angle_speed_y * glfwGetTime());
 
@@ -449,15 +455,16 @@ int main(int argc, char** argv)
                         throw CloseWindowException();
                     }
                 }
-                //strzał
 
+
+                //shoot
                 bullet.shoot(active_worm->get_position(), camera.get_angle_x(), camera.get_angle_y());
                 stop_movement();
                 camera.change_mode(active_worm);
                 glfwSetTime(0);
                 while (bullet.get_speed() != glm::vec3(0, 0, 0)) {
-                    bullet.apply_gravity_and_wind(wind, glfwGetTime());
-                    bullet.check_collision(&board, worms);
+                    bullet.apply_gravity_and_wind(wind, glfwGetTime()); // move bullet with respect to physics
+                    bullet.check_collision(&board, worms); // check collisions with worms and ground
 
                     glfwSetTime(0);
 
@@ -472,9 +479,7 @@ int main(int argc, char** argv)
                     }
                 }
 
-                // drawSceneExplosion();
                 draw_explosion(window);
-
             }
         }
     }
@@ -483,8 +488,6 @@ int main(int argc, char** argv)
     }
     catch (GameOverException e) {
       cout << endl<< e.what() << " is dead. Game over.\n";
-      //TODO: info on the screen
-
       drawSceneEndOfGame(window, worms);
 
       cout << "Goodbye!\n";

@@ -1,8 +1,10 @@
 #version 330
 
-uniform sampler2D tex; //jednostka teksturująca
+/* fragment shader for objecs with many meshes with different textures */
 
-out vec4 pixelColor; //Output variable. Almost final pixel color
+uniform sampler2D tex; // texturing unit
+
+out vec4 pixelColor;
 
 in vec4 i_color;
 in vec4 n;

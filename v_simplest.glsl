@@ -1,5 +1,7 @@
 #version 330
 
+/* vertex shader for objecs with many meshes with different textures – Lambert lighting */
+
 //Uniform variables
 uniform mat4 P;
 uniform mat4 V;

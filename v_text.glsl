@@ -1,5 +1,7 @@
 #version 330
 
+/* vertex shader to display the 2D text */
+
 //Attributes
 in vec2 vertex; //Vertex coordinates in model space
 in vec2 texCoord; //texturing coordinates

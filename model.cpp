@@ -6,6 +6,8 @@ Model::Model(const std::string& obj_filename, bool _whole=true){
   this->whole = _whole;
 }
 
+
+// load from obj file
 void Model::load(const std::string& filename){
   std::cout<<"\nReading model "<<filename;
   Assimp::Importer importer;
@@ -17,12 +19,14 @@ void Model::load(const std::string& filename){
   );
   std::cout<<importer.GetErrorString()<<std::endl;
 
+  // process meshes
   if (scene->HasMeshes()){
     for (int i=0; i<scene->mNumMeshes;i++){
       meshes.emplace_back(scene, i);
     }
   }
 }
+
 
 void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 position, glm::mat4 V, glm::vec3 scale=glm::vec3(1,1,1)){
   glm::mat4 P=glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 120.0f); //compute projection matrix
@@ -33,6 +37,7 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
   M=glm::rotate(M,angle_y,glm::vec3(1.0f,0.0f,0.0f)); //Compute model matrix
   M=glm::rotate(M,angle_x,glm::vec3(0.0f,1.0f,0.0f));
 
+  // draw all meshes
   for (int i=0; i<meshes.size(); i++){
     if (this->whole)
       meshes[i].draw(window, V, P, M, this->textures);
@@ -42,6 +47,7 @@ void Model::draw(GLFWwindow* window,float angle_x,float angle_y, glm::vec3 posit
 }
 
 
+// read texture from png file
 void Model::readTexture(const char* filename){
   GLuint tex;
 
@@ -68,6 +74,7 @@ void Model::readTexture(const char* filename){
 }
 
 
+// read all needed textures
 void Model::readTextures(std::vector<const char*> filenames){
   for (int i = 0; i < filenames.size(); i++){
     this->readTexture(filenames[i]);
@@ -96,7 +103,7 @@ Mesh::Mesh(const aiScene* scene, int nr){
 		aiVector3D texCoord = mesh->mTextureCoords[0][i]; //numer zestawu, numer wierzchołka
 		texCoords.push_back(glm::vec2(texCoord.x, texCoord.y)); //jeżeli tekstura ma tylko 2 wymiary
 
-    // // PRZESTRZEŃ STYCZNA
+    // PRZESTRZEŃ STYCZNA
     aiVector3D tangent = mesh->mTangents[i];
     tangents.push_back(glm::vec4(tangent.x, tangent.y, tangent.z, 0));
 	}
@@ -122,7 +129,6 @@ void Mesh::draw(GLFWwindow* window, glm::mat4 V, glm::mat4 P, glm::mat4 M, std::
   glUniformMatrix4fv(sp->u("P"),1,false,glm::value_ptr(P));
   glUniformMatrix4fv(sp->u("V"),1,false,glm::value_ptr(V));
   glUniformMatrix4fv(sp->u("M"),1,false,glm::value_ptr(M));
-  // glUniformMatrix4fv(sp->u("light_position"), )
 
 	glEnableVertexAttribArray(sp->a("vertex")); //Enable sending data to the attribute vertex
   glVertexAttribPointer(sp->a("vertex"),4,GL_FLOAT,false,0, verts.data()); //Specify source of the data for the attribute vertex

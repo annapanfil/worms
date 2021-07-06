@@ -3,7 +3,7 @@
 #include "things.hpp"
 
 const glm::vec3 CAMERA_DEFAULT_POS = glm::vec3(2, 10, -15);
-const int R = 2;  //odległość materializowania się pocisku
+const int R = 2;  // distance where bullet materialize
 bool show_textures = 1;
 
 ////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ Worm::Worm(std::string name, Board* board, Camera* camera, const std::string& _m
 
 
 void Worm::update(float speed, float angle_speed, double _time) {
-    //przesunięcie w przestrzeni świata
+    // movement in world space
     set_angle_x(get_angle_x() + angle_speed * _time);
 
     float x = get_position()[0] + speed * sin(get_angle_x()) * _time;
@@ -74,8 +74,6 @@ void Worm::update(float speed, float angle_speed, double _time) {
       }
       catch (std::out_of_range) {}
     }
-
-    // std::cout<<get_position()[0]<<" "<<get_position()[1]<<" "<<get_position()[2]<<std::endl;
 }
 
 
@@ -109,7 +107,6 @@ void Bullet::check_collision(Board* board, std::vector<Worm*> worms) {
         // collisions with the board
         if (pos.y <= board->get_height(pos.x, pos.z)) {
             this->speed = glm::vec3(0, 0, 0); // stop
-            // TODO: wyświetl eksplozję
 
             //check if the worms were hurt
             for (int i = 0; i < 2; i++) {
@@ -127,7 +124,6 @@ void Bullet::check_collision(Board* board, std::vector<Worm*> worms) {
         float dist = glm::distance(pos, worms[i]->get_position());
         if (dist < R) {
             worms[i]->damage(1 / dist * 50);
-            //TODO: eksplozja
             this->speed = glm::vec3(0, 0, 0);
         }
     }
@@ -147,7 +143,7 @@ void Bullet::shoot(glm::vec3 _pos, float _angle_x, float _angle_y) {
 
 ////////////////////////////////////////////////////////////////////
 
-Camera::Camera() : Movable(), Everything() {  //Movable(),
+Camera::Camera() : Movable(), Everything() {
     walking_mode = true;
     nose_vector = glm::vec3(0.0f, 1.0f, 0.0f);
 }
@@ -158,17 +154,17 @@ void Camera::change_mode(Worm* active_worm) {
         //opcjonalnie zapisz poprzednie ustawienie kamery wzgl. worma |+deklaracja globalna pos_save/zwracanie
         //pos_save = pos - active_worm->get_position();
         set_position(active_worm->get_position());
-    }   //zmieniamy na strzelanie
+    }   // change to aiming
     else {
-        //wróć do poprzedniego ustawienia
-        //pos = active_worm->get_position() + pos_save;
-        set_position(active_worm->get_position() + glm::vec3(2, 10, -15)); //TODO: domyślne ustawienie kamery
-    }   //zmieniamy na chodzenie
+        // wróć do poprzedniego ustawienia
+        // pos = active_worm->get_position() + pos_save;
+        set_position(active_worm->get_position() + glm::vec3(2, 10, -15));
+    }   // change to walking
     walking_mode = -walking_mode;
 }
 
 void Camera::update_pos(glm::vec3 worm_pos, float angle_x) {
-    float distance = 10;   //odległość między kamerą a robakiem
+    float distance = 10;   //distance between worm and the camera
     set_position(worm_pos + glm::vec3(-sin(angle_x) * distance, 7, -cos(angle_x) * distance));
     set_angle_x(angle_x);
 }

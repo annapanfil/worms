@@ -38,6 +38,7 @@ public:
 
 extern ShaderProgram* sp;
 extern ShaderProgram* sp_simpler;
+extern ShaderProgram* sp_text;
 
 void initShaders();
 void freeShaders();

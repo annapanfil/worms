@@ -47,6 +47,7 @@ public:
 	void rotate(float angle, float time);
 	void turn_right(float angle);
 	void move_forward(float amount);
+	Movable();
 };
 
 class Worm;
@@ -91,6 +92,7 @@ public:
 	void update(float speed, float angle_speed, double _time);
 	void damage(int how_much);
 	static int count_worms;
+	int get_life();
 };
 
 

@@ -19,9 +19,11 @@ Everything::Everything(glm::vec3 _pos = glm::vec3(0, 0, 0), float _angle_x = 0, 
 Drawable::Drawable(const std::string& model_filename, std::vector<const char*> texture_filenames, glm::vec3 _scale, bool whole=true){
     this->scale = _scale;
     model = Model(model_filename, whole);
-    if (show_textures) model.readTextures(texture_filenames);
+    if (show_textures)
+      model.readTextures(texture_filenames);
 }
 
+Movable::Movable() {}
 
 void Drawable::draw(GLFWwindow* window, glm::mat4 V) {
     model.draw(window, get_angle_x(), get_angle_y(), get_position(), V, scale);
@@ -84,6 +86,9 @@ void Worm::damage(int how_much) {
     std::cout<< name <<" "<< life<<std::endl;
 }
 
+int Worm::get_life() {
+    return life;
+}
 ////////////////////////////////////////////////////////////////////
 
 Bullet::Bullet(const std::string& obj_filename, std::vector<const char*> tex_filenames) :
@@ -142,7 +147,7 @@ void Bullet::shoot(glm::vec3 _pos, float _angle_x, float _angle_y) {
 
 ////////////////////////////////////////////////////////////////////
 
-Camera::Camera() : Movable(), Everything() {
+Camera::Camera() : Movable(), Everything() {  //Movable(),
     walking_mode = true;
     nose_vector = glm::vec3(0.0f, 1.0f, 0.0f);
 }

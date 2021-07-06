@@ -20,7 +20,7 @@
 using std::cout;
 using std::endl;
 
-int roundtime = 5;
+int roundtime = 15;
 float speed = 0;
 float angle_speed = 0;
 float camera_angle_speed_x = 0;
@@ -220,10 +220,14 @@ void drawSceneWalking(GLFWwindow* window, Camera* camera, std::vector<Drawable*>
     int win_ = floor(wind[1]);
     int win__ = floor(wind[2]);
     float backwards_timer = roundtime - timer;
-    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__) + "   Time: " + std::to_string(backwards_timer);
-    std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
-    drawText(text_to_view, 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
-    drawText(text_view, 0, 540, 18);
+    std::string text_view[4];
+    text_view[0] = { " Time: " + std::to_string(backwards_timer) };
+    text_view[1] = { " Worm1 (BLUE)life: " + std::to_string(worms[0]->get_life()) };
+    text_view[2] = { " Worm2 (RED)life: " + std::to_string(worms[1]->get_life())};
+    text_view[3] = { "LIFE:" };
+    drawText(text_view[0], 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    drawText(text_view[1], 10, 525, 18);
+    drawText(text_view[2], 10, 546, 18);
     glfwSwapBuffers(window);
 }
 
@@ -248,11 +252,14 @@ void drawSceneAiming(GLFWwindow* window, Camera* camera, std::vector<Drawable*> 
     int win = floor(wind[0]);
     int win_ = floor(wind[1]);
     int win__ = floor(wind[2]);
-    std::string text_to_view = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__);
-    std::string text_view = "Worm1 (BLUE) life: " + std::to_string(worms[0]->get_life()) + "    Worm2 (RED) life: " + std::to_string(worms[1]->get_life());
-    drawText(text_to_view, 10, 570, 25);  
-    drawText(text_view, 0, 540, 18);
-    
+    std::string text_view[4];
+    text_view[0] = "Wind: " + std::to_string(win) + "," + std::to_string(win_) + "," + std::to_string(win__);
+    text_view[1] = { " Worm1 (BLUE) life:" + std::to_string(worms[0]->get_life()) };
+    text_view[2] = { " Worm2 (RED) life:" + std::to_string(worms[1]->get_life()) };
+    text_view[3] = { "LIFE:" };
+    drawText(text_view[0], 10, 570, 25);  // + objects[1].life + Worm 2 life: objects[2].life, wind (where maximum==2): wind
+    drawText(text_view[1], 10, 525, 18);
+    drawText(text_view[2], 10, 546, 18);
     glfwSwapBuffers(window);
 }
 

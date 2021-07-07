@@ -96,9 +96,12 @@ Bullet::Bullet(const std::string& obj_filename, std::vector<const char*> tex_fil
 }
 
 void Bullet::apply_gravity_and_wind(glm::vec3 _wind, float time) {
+    int _angle_y, _angle_x;
+    _angle_y = this->get_angle_y();
+    _angle_x = this->get_angle_x();
     glm::vec3 gravity = glm::vec3(0, -1.5, 0);
     set_position(get_position() + speed * glm::vec3(time, time, time));
-    this->speed = speed + (gravity + _wind) * glm::vec3(time, time, time);
+    this->speed = speed + (gravity + glm::vec3(_wind[0] * sin(_angle_x) * cos(_angle_y), _wind[1] * sin(_angle_y), _wind[2] * cos(_angle_x) * cos(_angle_y))) * glm::vec3(time, time, time);
 }
 
 void Bullet::check_collision(Board* board, std::vector<Worm*> worms) {
